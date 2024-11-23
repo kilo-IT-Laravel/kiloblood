@@ -2,32 +2,65 @@
 
 namespace Database\QueryBuilder;
 
+use Illuminate\Support\Facades\Log;
+
 class FindAll extends BaseQuery
 {
-    public function allWithPagination($Data, $sort = 'latest', $perPage = 10, $relations = null, $select = null , $where = null)
+    private function extractParams(array $params)
     {
-        $query = $this->buildQuery($Data, $sort, $relations, $select);
+        if (isset($params['relations']) && is_array($params['relations'])) {
+            if (array_values($params['relations']) === $params['relations']) {
+                $params['relations'] = array_fill_keys($params['relations'], null);
+            }
+        }
 
-        return $query->paginate($perPage);
+        return [
+            'data'      => $params['data'] ?? null,
+            'sort'      => $params['sort'] ?? 'latest',
+            'perPage'   => $params['perPage'] ?? 10,
+            'relations' => $params['relations'] ?? null,
+            'select'    => $params['select'] ?? null,
+            'where'     => $params['where'] ?? null,
+            'limit'     => $params['limit'] ?? 10,
+            'offset'    => $params['offset'] ?? 0,
+            'aggregate'  => $params['aggregate'] ?? null,
+            'dateRange'  => $params['dateRange'] ?? null,
+            'search'    => $params['search'] ?? []
+        ];
     }
 
-    public function allWithLimit($Data, $limit = 10, $offset = 0, $relations = null, $select = null, $sort = 'latest' , $where = null)
+    public function allWithPagination(array $params)
     {
-        $query = $this->buildQuery($Data, $sort, $relations, $select);
+        $params = $this->extractParams($params);
+        Log::info($params['relations']);
+        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
-        return $query->skip($offset)->take($limit)->get();
+        return $query->paginate($params['perPage']);
     }
 
-    public function allData($Data, $sort = 'latest', $relations = null, $select = null , $where = null)
+    public function allWithLimit(array $params)
     {
-        $query = $this->buildQuery($Data, $sort, $relations, $select);
+        $params = $this->extractParams($params);
+
+        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+
+        return $query->skip($params['offset'])->take($params['limit'])->get();
+    }
+
+    public function allData(array $params)
+    {
+        $params = $this->extractParams($params);
+
+        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->get();
     }
 
-    public function allDataWithSelect($Data, $select = [], $relations = null , $where = null)
+    public function allDataWithSelect(array $params)
     {
-        $query = $this->buildQuery($Data, 'latest', $relations, $select);
+        $params = $this->extractParams($params);
+
+        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->get();
     }
