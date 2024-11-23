@@ -1,97 +1,100 @@
-# Eloquent Query Builder
 
-This package provides a set of pre-built methods to make querying Eloquent models easier, especially for beginners. These methods abstract away the complexity of commonly used database queries, allowing you to focus on getting data without writing repetitive code.
+# Kobeni Laravel11 helper (˶ᵔ ᵕ ᵔ˶)
+
+#### 1. Is this a library ? no it is not a library but a small mini framework or you can just call it a helper.
+
+#### 2. So what does it help ? not much but can help you query some stuff more easy.
+
+
 
 ## Installation
 
-No installation required. This is just a set of helper methods for Eloquent models that can be included in your project. It uses Laravel's built-in Eloquent ORM, so it's compatible with any Laravel project.
+Nah just clone this composer install php kobeni migrate and kobeni ser
+    
+## Features
 
-## Methods Overview
+- prebuild helper 6 array manipulation methods
+- prebuild authentication logics 
+- prebuild helper one device login 
+- prebuild helper log all users log into devices
+- prebuild helper terminate all devices and also specific
+- prebuild helper custom database query ready to be use
+- prebuild helper strong password validation actually this will coming for mores so stay tunes
 
-### 1. `allDataWithSelect()`
+## Usage/Examples
 
-Fetch all data from a model with specified columns, without pagination or limits.
+```bash
+php kobeni make:kobeniController ExampleController
 
-**Parameters:**
-- `$Data` (Model class) – The Eloquent model you want to query.
-- `$select` (Array) – An array of column names to retrieve (e.g., `['name', 'email']`).
-- `$relations` (Array or null) – An optional array of related models to eager load (e.g., `['posts', 'comments']`).
-- `$where` (Array or null) – An optional array of conditions for filtering the query (e.g., `[['status', '=', 'active']]`).
+php kobeni make:after MethodName
 
-## 2. `allWithPagination()`
+php kobeni make:before MethodName
 
-The `allWithPagination()` method is designed to fetch data from a model with pagination. This allows you to retrieve a set number of results per page and make the data more manageable, especially when dealing with large datasets. This method will automatically generate the pagination links for you.
+php kobeni make:staticRp ClassName
 
-### **Parameters:**
+php kobeni make:dynamicRp className
+```
 
-- **`$Data` (Model class)** – The Eloquent model you want to query (e.g., `User::class`, `Post::class`).
-- **`$sort` (String)** – The sorting order (either `'latest'` or `'oldest'`).
-    - `'latest'`: Sorts the results by the most recent records.
-    - `'oldest'`: Sorts the results by the oldest records.
-- **`$perPage` (Int)** – The number of results per page. The default is `10`.
-- **`$relations` (Array or null)** – An optional array of relationships to eager load (e.g., `['posts', 'comments']`).
-- **`$select` (Array or null)** – An optional array of columns to retrieve (e.g., `['name', 'email']`).
-- **`$where` (Array or null)** – An optional array of conditions for filtering the query (e.g., `[['status', '=', 'active']]`).
-
-### 3. `allWithLimit()`
-
-The `allWithLimit()` method is designed to fetch a set number of records from a model without pagination. Unlike `allWithPagination()`, it does not include pagination links but allows you to retrieve a fixed number of results based on your limit. This method is useful for cases where you need a quick list of items or an "infinite scroll" style list.
-
-### **Parameters:**
-
-- **`$Data` (Model class)** – The Eloquent model you want to query (e.g., `User::class`, `Post::class`).
-- **`$limit` (Int)** – The number of results to return.
-- **`$sort` (String)** – The sorting order (either `'latest'` or `'oldest'`).
-    - `'latest'`: Sorts the results by the most recent records.
-    - `'oldest'`: Sorts the results by the oldest records.
-- **`$relations` (Array or null)** – An optional array of relationships to eager load (e.g., `['posts', 'comments']`).
-- **`$select` (Array or null)** – An optional array of columns to retrieve (e.g., `['name', 'email']`).
-- **`$where` (Array or null)** – An optional array of conditions for filtering the query (e.g., `[['status', '=', 'active']]`).
-
-### 4. `allData()`
-
-The `allData()` method is a simple method that fetches all records from a model without pagination, limits, or any filtering. It’s ideal when you need to retrieve every record from a table and don’t need the complexity of sorting, filtering, or selecting specific columns. This method returns all the records as a collection.
-
-### **Parameters:**
-
-- **`$Data` (Model class)** – The Eloquent model you want to query (e.g., `User::class`, `Post::class`).
-- **`$relations` (Array or null)** – An optional array of relationships to eager load (e.g., `['posts', 'comments']`).
-- **`$select` (Array or null)** – An optional array of columns to retrieve (e.g., `['name', 'email']`).
-- **`$where` (Array or null)** – An optional array of conditions for filtering the query (e.g., `[['status', '=', 'active']]`).
-
-**Example Usages:**
 ```php
-//// with select
-$users = $this->allDataWithSelect(
-    User::class,               // The model class
-    ['name', 'email'],         // Columns to select
-    null,                      // No relationships to load
-    [['status', '=', 'active']] // Where condition: status = 'active'
-);
 
-/// with pagination
-$users = $this->allWithPagination(
-    User::class,               // The model class (User)
-    'latest',                  // Sort by latest
-    10,                        // Limit to 10 results per page
-    null,                      // No relationships to load
-    ['name', 'email'],         // Select only 'name' and 'email' columns
-    [['status', '=', 'active']] // Filter by 'active' status
-);
+public function example()
+{
+    try {
+        $data = $this->findAll->allDataWithSelect([
+            'data' => User::class,
+            'sort' => ['created_at', 'desc'],
+            'select' => ['id', 'name', 'email', 'created_at'],
+            'relations' => [
+                'posts' => function ($query) {
+                    $query->select('id', 'title', 'created_at');
+                }
+            ],
+            'search' => [
+                'name' => $this->req->name,
+            ],
+        ]);
 
-/// with limit for infinite scroll and mores...
-$users = $this->allWithLimit(
-    User::class,               // The model class (User)
-    5,                         // Limit to 5 results
-    'latest',                  // Sort by latest
-    null,                      // No relationships to load
-    ['name', 'email'],         // Select only 'name' and 'email' columns
-    [['status', '=', 'active']] // Filter by 'active' status
-);
+        return $this->dataResponse($data);
+    } catch (Exception $e) {
+        return $this->handleException($e, $this->req);
+    }
+}
 
-/// with display all you will get it
-$users = $this->allData(
-    User::class,   // The model class (User)
-    null,          // No relationships to load
-    ['name', 'email']  // Select only 'name' and 'email' columns
-);
+$user = $this->TokenRegister([
+  'credentials' => $credentials,
+  'model' => User::class
+]);
+
+public function getCollection(){
+    $data = [
+    'test' => [
+        'test1' => [
+          'test2' => [
+            'test3' => [
+              'name' => 'renko',
+              'test4' => []
+            ]
+          ]
+        ]
+    ],
+    'anotherTest' => [
+      'test1' => [
+        'test2' => [
+          'test3' => [
+            'name' => 'anotherName'
+          ]
+        ]
+      ]
+    ],
+    'newTest' => [
+      'name' => 'newName'
+    ]
+  ];
+
+  $results = $this->recursivePluck($data, 'name');
+        
+  return $this->dataResponse($results);
+}
+
+```
+

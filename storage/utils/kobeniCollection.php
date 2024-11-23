@@ -60,14 +60,5 @@ trait kobeniCollection
         return $array;
     }
 
-    public function uniqueByKey(array $array, $key)
-    {
-        $unique = [];
-        foreach ($array as $item) {
-            if (!isset($unique[$item[$key]])) {
-                $unique[$item[$key]] = $item;
-            }
-        }
-        return array_values($unique);
-    }
+
 }

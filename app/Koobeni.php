@@ -14,7 +14,7 @@ use Storage\utils\kobeniCollection;
 
 class Koobeni extends BaseController
 {
-    use Exceptions, CustomResponse, useExceptions, KobeniQuery, kobeniToken , kobeniSecurity , kobeniCollection;
+    use Exceptions, CustomResponse, useExceptions, KobeniQuery, kobeniToken, kobeniSecurity, kobeniCollection;
 
     public Request $req;
 
@@ -45,11 +45,14 @@ class Koobeni extends BaseController
                         ]
                     ]
                 ]
+            ],
+            'newTest' => [
+                'name' => 'newName'
             ]
         ];
 
         $results = $this->recursivePluck($data, 'name');
-        
+
         return $this->dataResponse($results);
     }
 }
