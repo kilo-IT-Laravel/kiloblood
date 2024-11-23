@@ -1,6 +1,5 @@
-- add one time login auth
+- add one time login auth session
 
-- add security settings 
--> terminate all devices
--> terminate specific device
--> alert which device login 
+- add static role and dynamic role with permissions
+
+- add security work with token but dont forget about session too

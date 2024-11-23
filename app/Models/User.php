@@ -70,4 +70,8 @@ class User extends Authenticatable
     public function BloodReq(){
         return $this->hasMany(BloodRequest::class , 'requester_id');
     }
+
+    public function testtoken(){
+        return $this->hasMany(TestToken::class);
+    }
 }
