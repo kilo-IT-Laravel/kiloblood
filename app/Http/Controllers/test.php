@@ -35,4 +35,22 @@ class test extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
+
+    public function testbruh(){
+        try{
+            $validatedData = $this->req->validate([
+                'password' => 'required|string|strongPassword',
+                'email' => 'required|email',
+                'name' => 'required|string|max:255',
+                'date' => 'required|date|validDateRange:2024-01-01,2024-12-31',
+                'appointment_time' => 'required|validTimeRange:09:00,17:00',
+                'dob' => 'required|date|minimumAge:18',
+                'phone' => 'required|phoneNumber'
+            ]);
+
+            return $this->dataResponse($validatedData);
+        }catch(Exception $e){
+            return $this->handleException($e , $this->req);
+        }
+    }
 }

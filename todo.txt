@@ -6,6 +6,4 @@
 
 today 
 
-make kobeniValidation working
-
 if have time implement hook after and hook before command just like crudbooster

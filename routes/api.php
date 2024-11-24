@@ -27,3 +27,5 @@ Route::get('/test', [test::class, 'bruh']);
 Route::get('/deleteTokens/{userId}', [Authentication::class, 'terminateAllDeviceTokens']);
 
 Route::get('/collection', [Koobeni::class , 'getCollection']);
+
+Route::post('/testvalidate' , [test::class , 'testbruh']);

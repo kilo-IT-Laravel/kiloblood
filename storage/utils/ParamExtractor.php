@@ -2,6 +2,8 @@
 
 namespace Storage\utils;
 
+use InvalidArgumentException;
+
 class ParamExtractor
 {
 
@@ -21,7 +23,7 @@ class ParamExtractor
             case 'kobeniToken':
                 return $this->extractKobeniTokenParams($params);
             default:
-                throw new \InvalidArgumentException("Operation '$operation' is not supported.");
+                throw new InvalidArgumentException("Operation '$operation' is not supported.");
         }
     }
 
