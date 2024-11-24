@@ -2,18 +2,18 @@
 
 namespace Database\QueryBuilder;
 
-class Delete extends BaseQuery {
-/**
-     * Delete a single record with dynamic conditions.
-     *
-     * @param  string  $model The model class name (e.g., 'App\Models\User').
-     * @param  mixed  $condition A closure or array of conditions.
-     * @return bool
-     */
-    public function deleteWithCondition($model, $condition)
+use InvalidArgumentException;
+
+class Delete extends BaseQuery
+{   
+    public function deleteWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'delete');
+        $model = $params['model'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         $query = $model::query();
@@ -23,16 +23,20 @@ class Delete extends BaseQuery {
         } elseif (is_array($condition)) {
             $query->where($condition);
         } else {
-            throw new \InvalidArgumentException('Condition must be a closure or an array');
+            throw new InvalidArgumentException('Condition must be a closure or an array');
         }
 
         return $query->delete();
     }
 
-    public function deleteManyWithCondition($model, $condition)
+    public function deleteManyWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'delete');
+        $model = $params['model'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         $query = $model::query();
@@ -42,7 +46,7 @@ class Delete extends BaseQuery {
         } elseif (is_array($condition)) {
             $query->where($condition);
         } else {
-            throw new \InvalidArgumentException('Condition must be a closure or an array');
+            throw new InvalidArgumentException('Condition must be a closure or an array');
         }
 
         return $query->delete();

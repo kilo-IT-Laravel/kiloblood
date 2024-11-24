@@ -2,11 +2,20 @@
 
 namespace Database\QueryBuilder;
 
-class Insert extends BaseQuery {
-    public function insertWithCondition($model, $data, $condition)
+use InvalidArgumentException;
+
+class Insert extends BaseQuery
+{
+    public function insertWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'insert');
+
+        $model = $params['model'];
+        $data = $params['data'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         if (is_callable($condition)) {
@@ -14,7 +23,7 @@ class Insert extends BaseQuery {
         } elseif (is_array($condition)) {
             $exists = $model::where($condition)->exists();
         } else {
-            throw new \InvalidArgumentException('Condition must be a closure or an array');
+            throw new InvalidArgumentException('Condition must be a closure or an array');
         }
 
         if (!$exists) {
@@ -24,10 +33,16 @@ class Insert extends BaseQuery {
         return null;
     }
 
-    public function insertManyWithCondition($model, $data, $condition)
+    public function insertManyWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'insert');
+
+        $model = $params['model'];
+        $data = $params['data'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         foreach ($data as $item) {
@@ -36,7 +51,7 @@ class Insert extends BaseQuery {
             } elseif (is_array($condition)) {
                 $exists = $model::where($condition)->exists();
             } else {
-                throw new \InvalidArgumentException('Condition must be a closure or an array');
+                throw new InvalidArgumentException('Condition must be a closure or an array');
             }
 
             if (!$exists) {

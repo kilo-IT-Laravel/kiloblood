@@ -3,16 +3,31 @@
 namespace Database\QueryBuilder;
 
 class FindId extends BaseQuery {
-    public function findById($Data, $id, $relations = null, $select = null)
+
+    public function findById(array $params)
     {
-        $query = $this->buildQuery($Data, $relations, $select);
+        $params = $this->extractParams($params , 'findId');
+        
+        $model = $params['model']; 
+        $id = $params['id'];        
+        $relations = $params['relations'] ?? null; 
+        $select = $params['select'] ?? null;
+
+        $query = $this->buildQuery($model, $relations, $select);
 
         return $query->find($id);
     }
 
-    public function findByIds($Data, $ids, $relations = null, $select = null)
+    public function findByIds(array $params)
     {
-        $query = $this->buildQuery($Data, $relations, $select);
+        $params = $this->extractParams($params , 'findId');
+        
+        $model = $params['model']; 
+        $ids = $params['ids']; 
+        $relations = $params['relations'] ?? null;  
+        $select = $params['select'] ?? null;    
+
+        $query = $this->buildQuery($model, $relations, $select);
 
         return $query->whereIn('id', $ids)->get();
     }

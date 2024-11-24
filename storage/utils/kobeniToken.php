@@ -8,39 +8,47 @@ use Illuminate\Support\Facades\Hash;
 
 trait kobeniToken
 {
-    public function TokenRegister($credentials, $model, $token = true, $date)
+
+    protected $paramExtractor;
+
+    public function __construct(){
+        $this->paramExtractor = new ParamExtractor();
+    }
+
+    public function TokenRegister(array $params)
     {
-        if (!isset($credentials['password'])) {
+        $params = $this->paramExtractor->extractParams('kobeniToken',$params);
+
+        if (!isset($params['credentials']['password'])) {
             throw new AuthenticationException('Need to key["password"]!');
         }
 
-        $data['password'] = Hash::make($credentials['password']);
+        $data['password'] = Hash::make($params['credentials']['password']);
 
-        $user = $model::create($credentials);
+        $user = $params['model']::create($params['credentials']);
 
-        if ($token == true) {
-            $expireDate = now()->addDays($date);
-            if ($date) {
-                $user->createToken('my_token', expiresAt: $expireDate)->plainTextToken;
-            } else {
-                $user->createToken('my_token')->plainTextToken;
-            }
+        if (!empty($params['token']) && $params['token'] == true) {
+            $expireDate = now()->addDays($params['date'] ?? 7);
+            $user->createToken('my_token', expiresAt: $expireDate)->plainTextToken;
         }
 
         return $user;
     }
 
-    public function TokenLogin($credentials, $model, $date , $oneTimeLogin = false)
+    public function TokenLogin(array $params)
     {
-        $keys = array_keys($credentials);
-        $values = array_values($credentials);
-        $user = $model::where($keys[0], $values[0])->first();
+        $params = $this->paramExtractor->extractParams('kobeniToken',$params);
+        $keys = array_keys($params['credentials']);
+        $values = array_values($params['credentials']);
+        $oneTimeLogin = $params['oneTimeLogin'] ?? false;
+
+        $user = $params['model']::where($keys[0], $values[0])->first();
 
         if (!$user || !Hash::check($values[1], $user->password)) {
             throw new AuthenticationException('Invalid credentials');
         }
 
-        $expireDate = now()->addDays($date);
+        $expireDate = now()->addDays($params['date']);
 
         if ($oneTimeLogin) {
             DB::table('personal_access_tokens')->where('tokenable_id', $user->id)->delete();
@@ -48,7 +56,7 @@ trait kobeniToken
 
         $token = '';
 
-        if ($date) {
+        if ($params['date']) {
             $token = $user->createToken('my_token', expiresAt: $expireDate)->plainTextToken;
         } else {
             $token = $user->createToken('my_token')->plainTextToken;

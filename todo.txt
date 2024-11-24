@@ -3,3 +3,9 @@
 - add static role and dynamic role with permissions
 
 - add security work with token but dont forget about session too
+
+today 
+
+make kobeniValidation working
+
+if have time implement hook after and hook before command just like crudbooster

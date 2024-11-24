@@ -19,7 +19,10 @@ class Authentication extends Koobeni {
                 'role' => 'required|string'
             ]);
 
-            $user = $this->TokenRegister($cred , User::class , false , null);
+            $user = $this->TokenRegister([
+                'model' => User::class ,
+                'credentials' => $cred
+            ]);
 
             return $this->dataResponse($user);
 
@@ -35,7 +38,11 @@ class Authentication extends Koobeni {
                 'password' => 'required|string'
             ]);
 
-            $data = $this->TokenLogin($cred , User::class , null , true);
+            $data = $this->TokenLogin([
+                'model' => User::class,
+                'credentials' => $cred,
+                'oneTimeLogin' => true
+            ]);
 
             return $this->dataResponse($data);
         }catch(Exception $e){

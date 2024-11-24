@@ -2,11 +2,20 @@
 
 namespace Database\QueryBuilder;
 
-class Update extends BaseQuery {
-    public function updateWithCondition($model, $data, $condition)
+use InvalidArgumentException;
+
+class Update extends BaseQuery
+{
+    public function updateWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'update');
+
+        $model = $params['model'];
+        $data = $params['data'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         $query = $model::query();
@@ -16,15 +25,22 @@ class Update extends BaseQuery {
         } elseif (is_array($condition)) {
             $query->where($condition);
         } else {
-            throw new \InvalidArgumentException('Condition must be a closure or an array');
+            throw new InvalidArgumentException('Condition must be a closure or an array');
         }
+
         return $query->update($data);
     }
 
-    public function updateManyWithCondition($model, $data, $condition)
+    public function updateManyWithCondition(array $params)
     {
+        $params = $this->extractParams($params , 'update');
+
+        $model = $params['model'];
+        $data = $params['data'];
+        $condition = $params['condition'];
+
         if (!class_exists($model)) {
-            throw new \InvalidArgumentException("The model $model does not exist.");
+            throw new InvalidArgumentException("The model $model does not exist.");
         }
 
         foreach ($data as $item) {
@@ -35,7 +51,7 @@ class Update extends BaseQuery {
             } elseif (is_array($condition)) {
                 $query->where($condition);
             } else {
-                throw new \InvalidArgumentException('Condition must be a closure or an array');
+                throw new InvalidArgumentException('Condition must be a closure or an array');
             }
 
             $query->update($item);

@@ -4,8 +4,20 @@ namespace Database\QueryBuilder;
 
 use Closure;
 use Illuminate\Support\Facades\DB;
+use Storage\utils\ParamExtractor;
 
 class BaseQuery {
+
+    protected $paramExtractor;
+
+    public function __construct() {
+        $this->paramExtractor = new ParamExtractor();
+    }
+
+    public function extractParams(array $params , string $operation){
+        return $this->paramExtractor->extractParams($operation , $params);
+    }
+
     public function buildQuery(
         $Data, 
         $sort, 
