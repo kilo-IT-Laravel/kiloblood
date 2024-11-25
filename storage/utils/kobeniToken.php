@@ -5,25 +5,21 @@ namespace Storage\utils;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 trait kobeniToken
 {
-
-    protected $paramExtractor;
-
-    public function __construct(){
-        $this->paramExtractor = new ParamExtractor();
-    }
-
     public function TokenRegister(array $params)
     {
         $params = $this->paramExtractor->extractParams('kobeniToken',$params);
+
+        Log::info($params['credentials']);
 
         if (!isset($params['credentials']['password'])) {
             throw new AuthenticationException('Need to key["password"]!');
         }
 
-        $data['password'] = Hash::make($params['credentials']['password']);
+        $params['credentials']['password'] = Hash::make($params['credentials']['password']);
 
         $user = $params['model']::create($params['credentials']);
 

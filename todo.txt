@@ -7,3 +7,10 @@
 today 
 
 if have time implement hook after and hook before command just like crudbooster
+
+
+one reuqest have many people join
+
+if the requester make a request if the user accept the requester need to confirm too 
+
+one request required how many people need to join and know who's join

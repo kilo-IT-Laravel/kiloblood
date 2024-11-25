@@ -11,6 +11,7 @@ use Storage\utils\useExceptions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Storage\utils\kobeniCollection;
+use Storage\utils\ParamExtractor;
 
 class Koobeni extends BaseController
 {
@@ -18,10 +19,13 @@ class Koobeni extends BaseController
 
     public Request $req;
 
+    protected $paramExtractor;
+
     public function __construct(Request $req)
     {
         $this->req = $req;
         $this->bootKobeniQuery();
+        $this->paramExtractor = new ParamExtractor();
     }
 
     public function getCollection()

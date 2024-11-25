@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('phone_number')->unique();
-            $table->enum('blood_type', [
-                'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
-            ]);
+            $table->string('blood_type');
             $table->enum('role', ['user', 'doctor'])->default('user');
             $table->timestamp('phonenumber_verified_at')->nullable()->default(null);
             $table->boolean('available_for_donation')->default(true);

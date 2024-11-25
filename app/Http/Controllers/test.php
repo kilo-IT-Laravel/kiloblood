@@ -6,13 +6,20 @@ use App\Koobeni;
 use App\Models\User;
 use Exception;
 
+use function PHPUnit\Framework\isEmpty;
+
 class test extends Koobeni
 {
     public function bruh()
     {
         try {
+
+            // $data = User::with(['BloodReq' => function($query){
+            //     $query->select('requester_id', 'status');
+            // }])
+
             $data = $this->findAll->allWithPagination([
-                'data' => User::class,
+                'model' => User::class,
                 'sort' => [
                     'created_at' , 'asc'
                 ],
@@ -49,6 +56,18 @@ class test extends Koobeni
             ]);
 
             return $this->dataResponse($validatedData);
+        }catch(Exception $e){
+            return $this->handleException($e , $this->req);
+        }
+    }
+
+    public function testBruh1(){
+        try{
+            $data = $this->req->validate([
+                'email' => 'required|email'
+            ]);
+
+            return $this->dataResponse($data);
         }catch(Exception $e){
             return $this->handleException($e , $this->req);
         }
