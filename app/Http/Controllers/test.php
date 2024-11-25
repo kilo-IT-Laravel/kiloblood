@@ -11,7 +11,7 @@ class test extends Koobeni
     // {
     //     try {
     //         $data = $this->findAll->allWithPagination([
-    //             'data' => User::class,
+    //             'model' => User::class,
     //             'sort' => [
     //                 'created_at' , 'asc'
     //             ],

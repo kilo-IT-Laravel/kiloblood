@@ -62,7 +62,7 @@ class ParamExtractor
         }
 
         return [
-            'data' => $params['data'] ?? null,
+            'model' => $params['model'] ?? null,
             'sort' => $params['sort'] ?? 'latest',
             'perPage' => $params['perPage'] ?? 10,
             'relations' => $params['relations'] ?? null,

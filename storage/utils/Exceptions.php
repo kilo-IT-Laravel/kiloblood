@@ -2,7 +2,6 @@
 
 namespace Storage\utils;
 
-use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

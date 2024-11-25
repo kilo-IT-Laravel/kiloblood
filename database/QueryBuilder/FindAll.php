@@ -10,7 +10,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
         Log::info($params['relations']);
-        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->paginate($params['perPage']);
     }
@@ -19,7 +19,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->skip($params['offset'])->take($params['limit'])->get();
     }
@@ -28,7 +28,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->get();
     }
@@ -37,7 +37,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['data'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
 
         return $query->get();
     }
