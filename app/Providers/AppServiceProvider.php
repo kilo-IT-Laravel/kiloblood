@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Storage\utils\kobeniHooks;
 use Storage\utils\KobeniValidation;
 use Storage\utils\Validators\ValidationReplacer;
 
@@ -16,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(KobeniValidation::class, function ($app) {
             return new KobeniValidation();
+        });
+
+        $this->app->singleton(kobeniHooks::class , function($app){
+            return new kobeniHooks();
         });
     }
 

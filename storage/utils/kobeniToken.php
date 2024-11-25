@@ -8,13 +8,6 @@ use Illuminate\Support\Facades\Hash;
 
 trait kobeniToken
 {
-
-    protected $paramExtractor;
-
-    public function __construct(){
-        $this->paramExtractor = new ParamExtractor();
-    }
-
     public function TokenRegister(array $params)
     {
         $params = $this->paramExtractor->extractParams('kobeniToken',$params);
