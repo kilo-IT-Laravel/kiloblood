@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Koobeni;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 class test extends Koobeni
 {
     // public function bruh()

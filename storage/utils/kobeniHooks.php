@@ -2,8 +2,6 @@
 
 namespace Storage\utils;
 
-use Illuminate\Support\Facades\Log;
-
 class kobeniHooks
 {
     private $beforeHooks = [];
