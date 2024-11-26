@@ -96,15 +96,9 @@ class test extends Koobeni
         try {
             $result = $this->uploadFile($this->req->file('file'));
 
-            return response()->json([
-                'success' => true,
-                'data' => $result
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->dataResponse($result);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
         }
     }
 
@@ -117,43 +111,40 @@ class test extends Koobeni
         try {
             $results = $this->uploadFiles($this->req->file('files'));
 
-            return response()->json([
-                'success' => true,
-                'data' => $results
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->dataResponse($results);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
         }
     }
 
     public function deleteFilebruh()
     {
-        $this->req->validate([
-            'path' => 'required|string'
-        ]);
-
-        $result = $this->deleteFile($this->req->path);
-
-        return response()->json([
-            'success' => $result
-        ]);
+        try{
+            $this->req->validate([
+                'path' => 'required|string'
+            ]);
+    
+            $result = $this->deleteFile($this->req->path);
+    
+            return $this->dataResponse($result);
+        }catch(Exception $e){
+            return $this->handleException($e, $this->req);
+        }
     }
 
     public function deleteMultiple()
     {
-        $this->req->validate([
-            'paths' => 'required|array',
-            'paths.*' => 'required|string'
-        ]);
-
-        $results = $this->deleteFiles($this->req->paths);
-
-        return response()->json([
-            'success' => true,
-            'results' => $results
-        ]);
+        try{
+            $this->req->validate([
+                'paths' => 'required|array',
+                'paths.*' => 'required|string'
+            ]);
+    
+            $results = $this->deleteFiles($this->req->paths);
+    
+            return $this->dataResponse($results);
+        }catch(Exception $e){
+            return $this->handleException($e, $this->req);
+        }
     }
 }
