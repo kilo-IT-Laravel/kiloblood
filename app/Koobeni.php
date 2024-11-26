@@ -12,11 +12,19 @@ use Storage\utils\useExceptions;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Storage\utils\kobeniCollection;
+use Storage\utils\KobeniS3;
 use Storage\utils\ParamExtractor;
 
 class Koobeni extends BaseController
 {
-    use Exceptions, CustomResponse, useExceptions, KobeniQuery, kobeniToken, kobeniSecurity, kobeniCollection;
+    use Exceptions, 
+    CustomResponse, 
+    useExceptions, 
+    KobeniQuery, 
+    kobeniToken, 
+    kobeniSecurity, 
+    kobeniCollection, 
+    KobeniS3;
 
     public Request $req;
 
