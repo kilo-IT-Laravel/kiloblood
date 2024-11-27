@@ -5,14 +5,9 @@ namespace App\Http\Controllers;
 use App\Koobeni;
 use App\Models\User;
 use Exception;
+
 class test extends Koobeni
 {
-    public function __construct() {
-        $this->setPath('custom/uploads');
-        $this->setDisk('s3');
-        $this->setVisibility('public');
-    }
-
     // public function bruh()
     // {
     //     try {

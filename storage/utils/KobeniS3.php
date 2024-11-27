@@ -29,7 +29,7 @@ trait KobeniS3
         return [
             'path' => $fullPath,
             'filename' => $filename,
-            'url' => $this->getFileUrl($fullPath, $disk),
+            'url' => $this->getFileUrl($filename),
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
             'visibility' => $visibility
@@ -73,6 +73,13 @@ trait KobeniS3
         }
 
         return $results;
+    }
+
+    private function getFileUrl(string $filename):string {
+        $aws_url = env('AWS_URL');
+        $url = "$aws_url$filename";
+
+        return $url;
     }
 
     protected function generateFilename(UploadedFile $file): string

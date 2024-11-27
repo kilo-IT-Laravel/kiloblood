@@ -31,3 +31,5 @@ Route::get('/collection', [Koobeni::class , 'getCollection']);
 Route::post('/testvalidate' , [test::class , 'testbruh']);
 
 Route::post('/postey' , [test::class , 'testBruh1']);
+
+Route::post('/testing' , [test::class , 'uploadSingle']);
