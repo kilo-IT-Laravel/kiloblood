@@ -36,26 +36,35 @@ return new class extends Migration
             $table->string('blood_type');
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
             $table->text('message')->nullable();
-            $table->integer('quantity')->nullable();
+            $table->integer('quantity');  
+            $table->boolean('is_public')->default(true);
             $table->timestamps();
             $table->softDeletes();
+            
             $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['requester_id', 'status']);
+            $table->index(['requester_id', 'status', 'is_public']);
         });
 
         Schema::create('blood_request_donors', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('blood_request_id');
             $table->unsignedBigInteger('donor_id');
-            $table->enum('status', ['pending', 'accepted', 'confirmed', 'completed', 'rejected'])
-                  ->default('pending');
+            $table->enum('status', [
+                'pending',
+                'accepted',
+                'confirmed',
+                'completed',
+                'rejected'
+            ])->default('pending');
             $table->text('medical_records')->nullable();
             $table->integer('blood_amount')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            
             $table->foreign('blood_request_id')->references('id')->on('blood_requests')->onDelete('cascade');
             $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['blood_request_id', 'donor_id']);
@@ -105,13 +114,24 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
-            $table->string('type');
-            $table->text('message');
+            $table->enum('type', [
+                'donation_received',    
+                'donation_confirmed',
+                'donation_rejected',  
+                'request_received',   
+                'request_declined' 
+            ]);
+            $table->morphs('notifiable');
+            $table->json('data');    
+            $table->boolean('is_read')->default(false);
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['user_id' , 'type' ]);
+            $table->index(['user_id', 'type', 'is_read']);
         });
+
 
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
