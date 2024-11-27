@@ -38,7 +38,7 @@ return new class extends Migration
             $table->text('message')->nullable();
             $table->integer('quantity')->nullable();
             $table->timestamps();
-            
+            $table->softDeletes();
             $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
             $table->index(['requester_id', 'status']);
         });
@@ -55,7 +55,7 @@ return new class extends Migration
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
-            
+            $table->softDeletes();
             $table->foreign('blood_request_id')->references('id')->on('blood_requests')->onDelete('cascade');
             $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['blood_request_id', 'donor_id']);
@@ -83,6 +83,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->timestamp('donation_date');
             $table->timestamps();
+            $table->softDeletes();
             $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('blood_request_id')->references('id')->on('blood_requests')->onDelete('cascade');
             $table->foreign('blood_request_donor_id')->references('id')->on('blood_request_donors')->onDelete('cascade');
@@ -95,6 +96,7 @@ return new class extends Migration
             $table->string('blood_type');
             $table->integer('quantity');
             $table->timestamps();
+            $table->softDeletes();
             $table->foreign('donation_id')->references('id')->on('blood_donations')->onDelete('cascade');
             $table->index(['donation_id', 'blood_type']);
             $table->softDeletes();
@@ -106,6 +108,7 @@ return new class extends Migration
             $table->string('type');
             $table->text('message');
             $table->timestamps();
+            $table->softDeletes();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->index(['user_id' , 'type' ]);
         });
@@ -131,6 +134,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->enum('language' , ['en' , 'kh' , 'ch'])->default('en');
             $table->timestamps();
+            $table->softDeletes();
             $table->index(['language' , 'title']);
 
         });
