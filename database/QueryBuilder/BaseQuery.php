@@ -26,9 +26,14 @@ class BaseQuery {
         $where = null,
         $aggregate = null,
         $dateRange = null,
-        $search = []
+        $search = [],
+        $onlyTrash = false 
     ){
         $query = $Data::query();
+
+        if($onlyTrash){
+            $query->onlyTrashed();
+        }
 
         if ($relations) {
             foreach ($relations as $relation => $closure) {

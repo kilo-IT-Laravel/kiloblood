@@ -4,13 +4,8 @@
 
 - add security work with token but dont forget about session too
 
-today 
+friday - todos
 
-if have time implement hook after and hook before command just like crudbooster
+1 add log service to specific logic controller at admin
 
-
-one reuqest have many people join
-
-if the requester make a request if the user accept the requester need to confirm too 
-
-one request required how many people need to join and know who's join
+2 structure new route design

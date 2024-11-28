@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\AuditLog;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Storage\utils\kobeniHooks;
@@ -21,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(kobeniHooks::class , function($app){
             return new kobeniHooks();
+        });
+
+        $this->app->singleton(AuditLog::class , function($app){
+            return new AuditLog();
         });
     }
 

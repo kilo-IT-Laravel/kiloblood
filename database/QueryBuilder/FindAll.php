@@ -2,15 +2,12 @@
 
 namespace Database\QueryBuilder;
 
-use Illuminate\Support\Facades\Log;
-
 class FindAll extends BaseQuery
 {
     public function allWithPagination(array $params)
     {
         $params = $this->extractParams($params , 'findAll');
-        Log::info($params['relations']);
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
 
         return $query->paginate($params['perPage']);
     }
@@ -19,7 +16,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
 
         return $query->skip($params['offset'])->take($params['limit'])->get();
     }
@@ -28,7 +25,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
 
         return $query->get();
     }
@@ -37,7 +34,7 @@ class FindAll extends BaseQuery
     {
         $params = $this->extractParams($params , 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search']);
+        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
 
         return $query->get();
     }

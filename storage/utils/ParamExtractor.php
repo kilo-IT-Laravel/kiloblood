@@ -67,6 +67,7 @@ class ParamExtractor
             'perPage' => $params['perPage'] ?? 10,
             'relations' => $params['relations'] ?? null,
             'select' => $params['select'] ?? null,
+            'trash' => $params['trash'] ?? false,
             'where' => $params['where'] ?? null,
             'limit' => $params['limit'] ?? 10,
             'offset' => $params['offset'] ?? 0,
