@@ -26,7 +26,7 @@ class TestService extends Koobeni {
             }],
             // 'where' => [['created_at', '=', '2024-11-21T16:45:55.000000Z']],
             'search' => [
-                'name' => $this->req->name
+                'name' => $this->req->name,
             ],
             // 'dateRange' => [
             //      'startDate' => '2024-11-21',

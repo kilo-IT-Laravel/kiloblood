@@ -16,8 +16,10 @@ class bannerManagment extends Koobeni
                 'model' => Banner::class,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
-                'select' => [], /// dont know which to select yet
-                'search' => [], /// there gonna be a sort too if there is_active or not
+                'select' => ['title'],
+                'search' => [
+                    'title' => $this->req->search
+                ],
                 'dateRange' => [
                     'startDate' => $this->req->startDate,
                     'endDate' => $this->req->endDate
