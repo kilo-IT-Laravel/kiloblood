@@ -12,12 +12,26 @@ class sharesManagment extends Koobeni
     public function getAllShares()
     {
         try {
+
+            $where = [];
+
+            if ($this->req->language) {
+                $where[] = ['language', '=', $this->req->language];
+            }
+
+            if ($this->req->is_active) {
+                $where[] = ['is_active', '=', $this->req->is_active];
+            }
+
             $data = $this->findAll->allWithPagination([
                 'model' => Share::class,
-                'sort' => 'latest',
+                'sort' => ['order', 'asc'],
                 'perPage' => $this->req->perPage,
-                'select' => [],
-                'search' => [],
+                'select' => ['id', 'title', 'language', 'is_active', 'order', 'created_at'],
+                'search' => [
+                    'title' => $this->req->search
+                ],
+                'where' => $where ?: null,
                 'dateRange' => [
                     'startDate' => $this->req->startDate,
                     'endDate' => $this->req->endDate
@@ -33,12 +47,17 @@ class sharesManagment extends Koobeni
     {
         try {
             $validated = $this->req->validate([
-                'title' => 'required|string',
+                'title' => 'nullable|string|max:255',
                 'message' => 'required|string',
-                'image_url' => 'required|string',
-                'language' => 'required|string',
-                'is_active' => 'boolean',
+                'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'language' => 'required|in:en,kh,ch',
+                'is_active' => 'boolean'
             ]);
+
+            if ($this->req->hasFile('image_url')) {
+                $path = $this->req->file('image_url')->store('shares', 'public');
+                $validated['image_url'] = $path;
+            }
 
             $share = Share::create($validated);
 
@@ -52,15 +71,22 @@ class sharesManagment extends Koobeni
     {
         try {
             $validated = $this->req->validate([
-                'id' => 'required|exists:shares,id',
-                'title' => 'required|string',
-                'message' => 'required|string',
-                'image_url' => 'required|string',
-                'language' => 'required|string',
-                'is_active' => 'boolean',
+                'title' => 'nullable|string|max:255',
+                'message' => 'nullable|string',
+                'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'language' => 'nullable|in:en,kh,ch',
+                'is_active' => 'boolean'
             ]);
 
             $share = Share::findOrFail($shareId);
+
+            if ($this->req->hasFile('image_url')) {
+                if ($share->image_url) {
+                    Storage::disk('public')->delete($share->image_url);
+                }
+                $path = $this->req->file('image_url')->store('shares', 'public');
+                $validated['image_url'] = $path;
+            }
 
             $share->update($validated);
 
@@ -106,13 +132,26 @@ class sharesManagment extends Koobeni
     public function getTrashed()
     {
         try {
+            $where = [];
+
+            if ($this->req->language) {
+                $where[] = ['language', '=', $this->req->language];
+            }
+
+            if ($this->req->is_active) {
+                $where[] = ['is_active', '=', $this->req->is_active];
+            }
+
             $data = $this->findAll->allWithPagination([
                 'model' => Share::class,
-                'sort' => 'latest',
                 'trash' => true,
+                'sort' => ['order', 'asc'],
                 'perPage' => $this->req->perPage,
-                'select' => [],
-                'search' => [],
+                'select' => ['id', 'title', 'language', 'is_active', 'order', 'created_at'],
+                'search' => [
+                    'title' => $this->req->search
+                ],
+                'where' => $where ?: null,
                 'dateRange' => [
                     'startDate' => $this->req->startDate,
                     'endDate' => $this->req->endDate
@@ -128,9 +167,8 @@ class sharesManagment extends Koobeni
     {
         try {
             $share = Share::findOrFail($shareId);
-            $share->is_active = !$share->is_active;
-            $share->save();
-            return $this->dataResponse($share, $share->is_active ? "Share Activated" : "Share Deactivated");
+            $share->update(['is_active' => !$share->is_active]);
+            return $this->dataResponse($share, $share->is_active ? 'Share template activated' : 'Share template deactivated',);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

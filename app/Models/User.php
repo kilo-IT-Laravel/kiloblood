@@ -63,11 +63,40 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 
-    public function BloodReq(){
-        return $this->hasMany(BloodRequest::class , 'requester_id');
+    public function bloodRequests()
+    {
+        return $this->hasMany(BloodRequest::class, 'requester_id');
+    }
+
+    public function donorResponses()
+    {
+        return $this->hasMany(BloodRequestDonor::class, 'donor_id');
+    }
+
+    public function donations()
+    {
+        return $this->hasMany(BloodDonation::class, 'donor_id');
+    }
+
+    public function notification(){
+        return $this->hasMany(Notification::class);
+    }
+
+    public function hiddenRequests(){
+        return $this->hasMany(HiddenBloodRequest::class);
+    }
+
+    public function socialShares(){
+        return $this->hasMany(SocialShare::class);
     }
 
     public function testtoken(){
         return $this->hasMany(TestToken::class);
+    }
+
+    public function hasHiddenRequest($requestId){
+        return $this->hiddenRequests()
+        ->where('blood_request_id' , $requestId)
+        ->exists();
     }
 }

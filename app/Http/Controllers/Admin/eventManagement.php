@@ -4,49 +4,34 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Event;
+use App\Services\EventManagement as ServicesEventManagement;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class EventManagement extends Koobeni
 {
+    private $eventService;
+
+    public function __construct()
+    {
+        $this->eventService = new ServicesEventManagement();
+    }
+
     public function index()
     {
         try {
-            $events = $this->findAll()->allWithPagination([
-                'model' => Event::class,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'select' => [], /// dont know which to select yet
-                'search' => [],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
-
+            $events = $this->eventService->getAllEvents(false);
             return $this->paginationDataResponse($events);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
 
-    public function getTrashed()
+    public function show(int $eventId)
     {
         try {
-            $events = $this->findAll()->allWithPagination([
-                'model' => Event::class,
-                'sort' => 'latest',
-                'trash' => true,
-                'perPage' => $this->req->perPage,
-                'select' => [], /// dont know which to select yet
-                'search' => [],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
-
-            return $this->paginationDataResponse($events);
+            $event = Event::findOrFail($eventId);
+            return $this->dataResponse($event);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -55,7 +40,7 @@ class EventManagement extends Koobeni
     public function store()
     {
         try {
-            $validated = $this->req->validate([
+            $data = $this->req->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'location' => 'required|string|max:255',
@@ -66,18 +51,8 @@ class EventManagement extends Koobeni
                 'is_active' => 'boolean'
             ]);
 
-            if ($this->req->hasFile('image')) {
-                $path = $this->req->file('image')->store('events', 'public');
-                $validated['image'] = $path;
-            }
-
-            if (!isset($validated['order'])) {
-                $validated['order'] = Event::max('order') + 1;
-            }
-
-            $event = Event::create($validated);
-
-            return $this->success('Event created successfully', $event);
+            $event = $this->eventService->create($data);
+            return $this->dataResponse($event);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -98,18 +73,8 @@ class EventManagement extends Koobeni
             ]);
 
             $event = Event::findOrFail($eventId);
-
-            if ($this->req->hasFile('image')) {
-                if ($event->image) {
-                    Storage::disk('public')->delete($event->image);
-                }
-                $path = $this->req->file('image')->store('events', 'public');
-                $validated['image'] = $path;
-            }
-
-            $event->update($validated);
-
-            return $this->dataResponse($event);
+            $updatedEvent = $this->eventService->update($event, $validated);
+            return $this->dataResponse($updatedEvent);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -126,75 +91,35 @@ class EventManagement extends Koobeni
         }
     }
 
-    public function restore($eventId)
+    public function getTrashed()
+    {
+        try {
+            $events = $this->eventService->getAllEvents(true);
+            return $this->paginationDataResponse($events);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function restore(int $eventId)
     {
         try {
             $event = Event::withTrashed()->findOrFail($eventId);
             $event->restore();
-
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
 
-    public function forceDelete($eventId)
+    public function forceDelete(int $eventId)
     {
         try {
             $event = Event::withTrashed()->findOrFail($eventId);
-
             if ($event->image) {
                 Storage::disk('public')->delete($event->image);
             }
-
             $event->forceDelete();
-
-            return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function bulkRestore()
-    {
-        try {
-            $this->req->validate([
-                'ids' => 'required|array',
-                'ids.*' => 'exists:events,id'
-            ]);
-
-            Event::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->restore();
-
-            return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function bulkForceDelete()
-    {
-        try {
-            $this->req->validate([
-                'ids' => 'required|array',
-                'ids.*' => 'exists:events,id'
-            ]);
-
-            $events = Event::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->get();
-
-            foreach ($events as $event) {
-                if ($event->image) {
-                    Storage::disk('public')->delete($event->image);
-                }
-            }
-
-            Event::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->forceDelete();
-
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -205,14 +130,10 @@ class EventManagement extends Koobeni
     {
         try {
             $event = Event::findOrFail($eventId);
-            $event->update([
-                'is_active' => !$event->is_active
-            ]);
-
+            $updatedEvent = $this->eventService->toggleStatus($event);
             return $this->dataResponse(
-                $event,
-                $event->is_active ? 'Event activated' : 'Event deactivated',
-
+                $updatedEvent,
+                $updatedEvent->is_active ? 'Event activated' : 'Event deactivated'
             );
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -228,22 +149,38 @@ class EventManagement extends Koobeni
                 'orders.*.order' => 'required|integer|min:0'
             ]);
 
-            foreach ($this->req->orders as $item) {
-                Event::where('id', $item['id'])
-                    ->update(['order' => $item['order']]);
-            }
-
+            $this->eventService->reorder($this->req->orders);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
 
-    public function show($eventId)
+    public function bulkRestore()
     {
         try {
-            $events = Event::findOrFail($eventId);
-            return $this->dataResponse($events);
+            $this->req->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'exists:events,id'
+            ]);
+
+            $this->eventService->bulkRestore();
+            return $this->dataResponse(null);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function bulkForceDelete()
+    {
+        try {
+            $this->req->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'exists:events,id'
+            ]);
+
+            $this->eventService->bulkForceDelete();
+            return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

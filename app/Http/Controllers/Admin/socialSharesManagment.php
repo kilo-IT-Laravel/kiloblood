@@ -5,21 +5,34 @@ namespace App\Http\Controllers;
 use App\Koobeni;
 use App\Models\SocialShare;
 use Exception;
-use Illuminate\Support\Facades\Storage;
 
 class socialSharesManagment extends Koobeni
 {
     public function getAllShares()
     {
         try {
+
+            $where = [];
+
+            if($this->req->platform){
+                $where[] = ['platform', '=', $this->req->platform];
+            }
+
+            if($this->req->user_id){
+                $where[] = ['user_id', '=', $this->req->user_id];
+            }
+
             $data = $this->findAll->allWithPagination([
                 'model' => SocialShare::class,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
-                'select' => ['title'],
-                'search' => [
-                    'title' => $this->req->search
+                'select' => ['id', 'user_id', 'platform', 'created_at'],
+                'relations' => [
+                    'user' => function($query){
+                        $query->select('id' , 'name');
+                    }
                 ],
+                'where' => $where ?: null,
                 'dateRange' => [
                     'startDate' => $this->req->startDate,
                     'endDate' => $this->req->endDate
@@ -31,107 +44,41 @@ class socialSharesManagment extends Koobeni
         }
     }
 
-    public function store()
+    public function getAnalytics()
     {
         try {
-            $validated = $this->req->validate([]);
+            $byPlatform = SocialShare::select('platform')
+                ->selectRaw('COUNT(*) as total_shares')
+                ->groupBy('platform')
+                ->get();
 
-            $data = SocialShare::create($validated);
+            $topUsers = SocialShare::with('user:id,name')
+                ->select('user_id')
+                ->selectRaw('COUNT(*) as share_count')
+                ->groupBy('user_id')
+                ->orderByDesc('share_count')
+                ->limit(10)
+                ->get();
 
-            return $this->dataResponse($data);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
+            $dailyShares = SocialShare::selectRaw('DATE(created_at) as date')
+                ->selectRaw('COUNT(*) as total_shares')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
 
-    public function update(int $socialId)
-    {
-        try {
-            $validated = $this->req->validate([]);
-
-            $share = SocialShare::findOrFail($socialId);
-            $share->update($validated);
-            return $this->dataResponse($share);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function destroy(int $socialId)
-    {
-        try {
-            $data = SocialShare::findOrFail($socialId);
-            $data->delete();
-            return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function restore()
-    {
-        try {
-            $data = SocialShare::onlyTrashed()->first();
-            $data->restore();
-            return $this->dataResponse($data);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function forceDelete()
-    {
-        try {
-            $data = SocialShare::withTrashed()->first();
-            $data->forceDelete();
-            return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function getTrashed()
-    {
-        try {
-            $data = $this->findAll->allWithPagination([
-                'model' => SocialShare::class,
-                'sort' => 'latest',
-                'trash' => true,
-                'perPage' => $this->req->perPage,
-                'select' => ['title'],
-                'search' => [
-                    'title' => $this->req->search
-                ],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
+            return $this->dataResponse([
+                'by_platform' => $byPlatform,
+                'top_users' => $topUsers,
+                'daily_shares' => $dailyShares,
+                'total_shares' => SocialShare::count(),
+                'unique_users' => SocialShare::distinct('user_id')->count()
             ]);
-            return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
 
-    public function bulkRestore()
-    {
-        try {
-            $this->req->validate([
-                'ids' => 'required|array',
-                'ids.*' => 'exists:banners,id'
-            ]);
-
-            SocialShare::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->restore();
-
-            return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function bulkForceDelete()
+    public function destroy()
     {
         try {
             $this->req->validate([
@@ -139,31 +86,9 @@ class socialSharesManagment extends Koobeni
                 'ids.*' => 'exists:social_shares,id'
             ]);
 
-            $banners = SocialShare::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->get();
-
-            foreach ($banners as $banner) {
-                if ($banner->image) {
-                    Storage::disk('public')->delete($banner->image);
-                }
-            }
-
-            SocialShare::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->forceDelete();
+            SocialShare::whereIn('id', $this->req->ids)->delete();
 
             return $this->dataResponse(null);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
-
-    public function show(int $socialId)
-    {
-        try {
-            $data = SocialShare::findOrFail($socialId);
-            return $this->dataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

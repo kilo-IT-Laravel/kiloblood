@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Hooks\HookService;
 use App\Koobeni;
-use App\Models\User;
 use App\Services\TestService;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,15 +12,15 @@ class test extends Koobeni
 {
     private $test;
 
-    public function __construct(HookService $hookService, Request $req) {
-        parent::__construct($hookService, $req);
+    public function __construct()
+    {
         $this->test = new TestService();
     }
 
     public function bruh()
     {
         try {
-            
+
             $data = $this->test->testing();
 
             return $this->paginationDataResponse($data);
@@ -108,31 +107,31 @@ class test extends Koobeni
 
     public function deleteFilebruh()
     {
-        try{
+        try {
             $this->req->validate([
                 'path' => 'required|string'
             ]);
-    
+
             $result = $this->deleteFile($this->req->path);
-    
+
             return $this->dataResponse($result);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
 
     public function deleteMultiple()
     {
-        try{
+        try {
             $this->req->validate([
                 'paths' => 'required|array',
                 'paths.*' => 'required|string'
             ]);
-    
+
             $results = $this->deleteFiles($this->req->paths);
-    
+
             return $this->dataResponse($results);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }

@@ -6,17 +6,30 @@ use App\Koobeni;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserManagment extends Koobeni
 {
-    public function UserManagement()
+    public function index()
     {
         try {
             $data = $this->findAll->allWithPagination([
                 'model' => User::class,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
-                'where' => [['role', '!=', 'doctor']],
+                'select' => [
+                    'id',
+                    'name',
+                    'phone_number',
+                    'blood_type',
+                    'location',
+                    'image',
+                    'available_for_donation',
+                    'created_at'
+                ],
+                'where' => [
+                    ['role', '!=', 'doctor']
+                ],
                 'search' => [
                     'name' => $this->req->name,
                     'location' => $this->req->location,
@@ -44,15 +57,29 @@ class UserManagment extends Koobeni
         }
     }
 
-    public function updateUser(int $userId)
+    public function update(int $userId)
     {
         try {
             $user = User::findOrFail($userId);
-            $data = [
 
-            ];
+            $data = $this->req->validate([
+                'name' => 'nullable|string|max:255',
+                'phone_number' => 'nullable|string|unique:users,phone_number,' . $userId,
+                'blood_type' => 'nullable|string',
+                'location' => 'nullable|string',
+                'available_for_donation' => 'boolean'
+            ]);
 
-            
+            if ($this->req->hasFile('image')) {
+                if ($user->image) {
+                    Storage::disk('public')->delete($user->image);
+                }
+                $data['image'] = $this->req->file('image')->store('users', 'public');
+            }
+
+            $user->update($data);
+
+            return $this->dataResponse($user);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -63,7 +90,7 @@ class UserManagment extends Koobeni
         try {
             $user = User::findOrFail($userId);
             $user->delete();
-            $this->logService->log(Auth::id() , 'soft_deleted' , User::class , $user->id);
+            $this->logService->log(Auth::id(), 'soft_deleted', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -78,7 +105,20 @@ class UserManagment extends Koobeni
                 'trash' => true,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
-                'where' => [['role', '!=', 'doctor']],
+                'select' => [
+                    'id',
+                    'name',
+                    'phone_number',
+                    'blood_type',
+                    'location',
+                    'image',
+                    'available_for_donation',
+                    'created_at',
+                    'deleted_at'
+                ],
+                'where' => [
+                    ['role', '!=', 'doctor']
+                ],
                 'search' => [
                     'name' => $this->req->name,
                     'location' => $this->req->location,
@@ -101,7 +141,7 @@ class UserManagment extends Koobeni
         try {
             $user = User::withTrashed()->findOrFail($userId);
             $user->restore();
-            $this->logService->log(Auth::id() , 'restored' , User::class , $user->id);
+            $this->logService->log(Auth::id(), 'restored', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -113,7 +153,7 @@ class UserManagment extends Koobeni
         try {
             $user = User::withTrashed()->findOrFail($userId);
             $user->forceDelete();
-            $this->logService->log(Auth::id() , 'permenant_deleted' , User::class , $user->id);
+            // $this->logService->log(Auth::id(), 'permenant_deleted', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);

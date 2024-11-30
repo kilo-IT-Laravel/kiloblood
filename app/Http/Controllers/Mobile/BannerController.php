@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Koobeni;
 use App\Models\Banner;
+use App\Services\BannersManagment;
 use Exception;
 
 class BannerController extends Koobeni
 {
+    private $bannerService;
+
+    public function __construct()
+    {
+        $this->bannerService = new BannersManagment();
+    }
+
     public function index()
     {
         try{

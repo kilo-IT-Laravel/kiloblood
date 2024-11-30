@@ -6,30 +6,27 @@ use App\Hooks\HookService;
 use App\Services\AuditLog;
 use Storage\utils\CustomResponse;
 use Storage\utils\Exceptions;
-use Storage\utils\KobeniQuery;
 use Storage\utils\kobeniSecurity;
 use Storage\utils\kobeniToken;
 use Storage\utils\useExceptions;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Storage\utils\kobeniCollection;
 use Storage\utils\KobeniS3;
 use Storage\utils\ModelNameFormatterTrait;
 use Storage\utils\ParamExtractor;
+use Storage\utils\ServiceTrait;
 
 class Koobeni extends BaseController
 {
     use Exceptions, 
     CustomResponse, 
     useExceptions, 
-    KobeniQuery, 
+    ServiceTrait,
     kobeniToken, 
     kobeniSecurity, 
     kobeniCollection, 
     KobeniS3,
     ModelNameFormatterTrait;
-
-    public Request $req;
 
     public $aop;
 
@@ -37,10 +34,9 @@ class Koobeni extends BaseController
 
     protected $paramExtractor;
 
-    public function __construct(HookService $hookService,Request $req)
+    public function __construct(HookService $hookService)
     {
-        $this->req = $req;
-        $this->bootKobeniQuery();
+        $this->bootService();
         $this->paramExtractor = new ParamExtractor();
         $this->aop = $hookService->getAop();
         $this->logService = new AuditLog();

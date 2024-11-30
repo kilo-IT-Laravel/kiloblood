@@ -4,27 +4,24 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Banner;
+use App\Services\BannersManagment;
 use Exception;
-use Illuminate\Support\Facades\Storage;
 
 class bannerManagment extends Koobeni
 {
+    private $bannerService;
+
+    public function __construct()
+    {
+        $this->bannerService = new BannersManagment();
+    }
+
     public function getAllBanners()
     {
         try {
-            $banners = $this->findAll->allWithPagination([
-                'model' => Banner::class,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'select' => ['title'],
-                'search' => [
-                    'title' => $this->req->search
-                ],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
+
+            $banners = $this->bannerService->getAllBanners();
+
             return $this->paginationDataResponse($banners);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -43,16 +40,7 @@ class bannerManagment extends Koobeni
                 'is_active' => 'boolean'
             ]);
 
-            if ($this->req->hasFile('image')) {
-                $path = $this->req->file('image')->store('banners', 'public');
-                $validated['image'] = $path;
-            }
-
-            if (!isset($validated['order'])) {
-                $validated['order'] = Banner::max('order') + 1;
-            }
-
-            $banner = Banner::create($validated);
+            $banner = $this->bannerService->create($validated);
 
             return $this->dataResponse($banner);
         } catch (Exception $e) {
@@ -73,19 +61,9 @@ class bannerManagment extends Koobeni
             ]);
 
             $banner = Banner::findOrFail($bannerId);
+            $updatedBanner = $this->bannerService->update($banner, $validated);
 
-            if ($this->req->hasFile('image')) {
-                if ($banner->image) {
-                    Storage::disk('public')->delete($banner->image);
-                }
-
-                $path = $this->req->file('image')->store('banners', 'public');
-                $validated['image'] = $path;
-            }
-
-            $banner->update($validated);
-
-            return $this->dataResponse($banner);
+            return $this->dataResponse( $updatedBanner);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -95,12 +73,7 @@ class bannerManagment extends Koobeni
     {
         try {
             $banner = Banner::findOrFail($bannerId);
-
-            if ($banner->image) {
-                Storage::disk('public')->delete($banner->image);
-            }
-
-            $banner->delete();
+            $this->bannerService->delete($banner);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -108,11 +81,11 @@ class bannerManagment extends Koobeni
         }
     }
 
-    public function restore($id)
+    public function restore(int $bannerId)
     {
         try {
-            $banner = Banner::withTrashed()->findOrFail($id);
-            $banner->restore();
+            $banner = Banner::withTrashed()->findOrFail($bannerId);
+            $this->bannerService->restore($banner);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -120,16 +93,11 @@ class bannerManagment extends Koobeni
         }
     }
 
-    public function forceDelete($id)
+    public function forceDelete(int $bannerId)
     {
         try {
-            $banner = Banner::withTrashed()->findOrFail($id);
-
-            if ($banner->image) {
-                Storage::disk('public')->delete($banner->image);
-            }
-
-            $banner->forceDelete();
+            $banner = Banner::withTrashed()->findOrFail($bannerId);
+            $this->bannerService->forceDelete($banner);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -140,17 +108,9 @@ class bannerManagment extends Koobeni
     public function getTrashed()
     {
         try {
-            $banners = $this->findAll->allWithPagination([
-                'model' => Banner::class,
-                'trash' => true,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'search' => [], /// there gonna be a sort too if there is_active or not
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
+
+            $banners = $banners = $this->bannerService->getAllBanners(true);
+
             return $this->paginationDataResponse($banners);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -162,13 +122,11 @@ class bannerManagment extends Koobeni
     {
         try {
             $banner = Banner::findOrFail($bannerId);
-            $banner->update([
-                'is_active' => !$banner->is_active
-            ]);
+            $updatedBanner = $this->bannerService->toggleStatus($banner);
 
             return $this->dataResponse(
-                $banner,
-                $banner->is_active ? 'Banner activated' : 'Banner deactivated'
+                $updatedBanner,
+                $updatedBanner->is_active ? 'Banner activated' : 'Banner deactivated'
             );
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -183,9 +141,7 @@ class bannerManagment extends Koobeni
                 'ids.*' => 'exists:banners,id'
             ]);
 
-            Banner::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->restore();
+            $this->bannerService->bulkRestore($this->req->ids);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -201,19 +157,7 @@ class bannerManagment extends Koobeni
                 'ids.*' => 'exists:banners,id'
             ]);
 
-            $banners = Banner::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->get();
-
-            foreach ($banners as $banner) {
-                if ($banner->image) {
-                    Storage::disk('public')->delete($banner->image);
-                }
-            }
-
-            Banner::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->forceDelete();
+            $this->bannerService->bulkForceDelete($this->req->ids);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -230,11 +174,9 @@ class bannerManagment extends Koobeni
                 'orders.*.order' => 'required|integer|min:0'
             ]);
 
-            foreach ($this->req->orders as $item) {
-                Banner::where('id', $item['id'])->update(['order' => $item['order']]);
-            }
+            $this->bannerService->reorder($this->req->orders);
 
-            return $this->success('Banners reordered successfully');
+            return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

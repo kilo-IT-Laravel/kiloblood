@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers\Mobile;
+
+use App\Koobeni;
+use App\Models\Share;
+use App\Models\SocialShare;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+
+class ShareController extends Koobeni
+{
+    public function index()
+    {
+        try {
+            $shares = Share::where('is_active', true)
+                ->where('language', $this->req->language ?? 'en')
+                ->get();
+
+            return $this->dataResponse($shares);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function recordShare()
+    {
+        try {
+
+            $this->req->validate([
+                'platform' => 'required|string|in:facebook,twitter,telegram,instagram,whatsapp'
+            ]);
+
+            SocialShare::create([
+                'user_id' => Auth::id(),
+                'platform' => $this->req->platform
+            ]);
+
+            return $this->dataResponse(null);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+}

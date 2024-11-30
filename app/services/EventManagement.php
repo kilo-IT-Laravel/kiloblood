@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Banner;
+use App\Models\Event;
 use Illuminate\Support\Facades\Storage;
 
-class BannersManagment extends BaseService
+class EventManagement extends BaseService
 {
-    public function getAllBanners($withTrashed = false)
+
+    public function getAllEvents($withTrashed = false)
     {
         $where = [];
 
@@ -15,23 +16,32 @@ class BannersManagment extends BaseService
             $where[] = ['is_active', '=', $this->req->is_active];
         }
 
+        if ($this->req->upcoming) {
+            $where[] = ['end_date', '>=', $this->req->upcoming];
+        }
+
         return $this->findAll->allWithPagination([
-            'model' => Banner::class,
-            'sort' => ['order', 'asc'],
+            'model' => Event::class,
             'trash' => $withTrashed,
+            'sort' => ['start_date', 'asc'],
             'perPage' => $this->req->perPage,
             'select' => [
                 'id',
                 'title',
-                'link',
-                'order',
+                'description',
+                'location',
+                'image',
+                'start_date',
+                'end_date',
                 'is_active',
+                'order',
                 'created_at'
             ],
             'where' => $where ?: null,
             'search' => [
                 'title' => $this->req->search,
-                'description' => $this->req->search
+                'description' => $this->req->search,
+                'location' => $this->req->search
             ],
             'dateRange' => [
                 'startDate' => $this->req->startDate,
@@ -50,81 +60,88 @@ class BannersManagment extends BaseService
             $data['order'] = $this->getNextOrder();
         }
 
-        return Banner::create($data);
+        return Event::create($data);
     }
 
-    public function update(Banner $banner, array $data)
+    public function update(Event $event, array $data)
     {
         if ($this->req->hasFile('image')) {
             $this->deleteImage($this->req->file('image'));
             $data['image'] = $this->uploadImage($this->req->file('image'));
         }
 
-        $banner->update($data);
-        return $banner->fresh();
+        $event->update($data);
+        return $event->fresh();
     }
 
-    public function delete(Banner $banner)
+    public function delete(Event $event)
     {
-        $banner->delete();
+        $event->delete();
         return true;
     }
 
-    public function forceDelete(Banner $banner)
+    public function forceDelete(Event $event)
     {
-        $this->deleteImage($banner->image);
-        $banner->forceDelete();
+        $this->deleteImage($event->image);
+        $event->forceDelete();
         return true;
     }
 
-    public function restore(Banner $banner)
+    public function restore(Event $event)
     {
-        $banner->restore();
-        return $banner;
+        $event->restore();
+        return $event;
     }
 
-    public function toggleStatus(Banner $banner)
+    public function toggleStatus(Event $event)
     {
-        $banner->update(['is_active' => !$banner->is_active]);
-        return $banner;
+        $event->update(['is_active' => !$event->is_active]);
+        return $event;
     }
 
     public function bulkRestore()
     {
-        return Banner::whereIn('id', $this->req->ids)
+        return Event::whereIn('id', $this->req->ids)
             ->withTrashed()
             ->restore();
     }
 
     public function bulkForceDelete()
     {
-        $banners = Banner::whereIn('id', $this->req->ids)
+        $events = Event::whereIn('id', $this->req->ids)
             ->withTrashed()
             ->get();
 
-        foreach ($banners as $banner) {
-            if ($banner->image) {
-                Storage::disk('public')->delete($banner->image);
-            }
+        foreach ($events as $event) {
+            $this->deleteImage($event->image);
         }
 
-        return Banner::whereIn('id', $this->req->ids)
+        return Event::whereIn('id', $this->req->ids)
             ->withTrashed()
             ->forceDelete();
     }
 
-    public function reorder()
+    public function reorder(array $orders)
     {
-        foreach ($this->req->orders as $item) {
-            Banner::where('id', $item['id'])
+        foreach ($orders as $item) {
+            Event::where('id', $item['id'])
                 ->update(['order' => $item['order']]);
         }
         return true;
     }
 
+    public function getActiveEvents()
+    {
+        return Event::where('is_active', true)
+            ->where('end_date', '>=', now())
+            ->orderBy('order')
+            ->orderBy('start_date')
+            ->get();
+    }
+
     private function uploadImage($image)
     {
-        return $image->store('banners', 'public');
+        return $image->store('events', 'public');
     }
 
     private function deleteImage($image)
@@ -136,6 +153,6 @@ class BannersManagment extends BaseService
 
     private function getNextOrder()
     {
-        return Banner::max('order') + 1;
+        return Event::max('order') + 1;
     }
 }
