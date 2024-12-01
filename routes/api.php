@@ -33,7 +33,7 @@ Route::prefix('/mobile')->middleware('auth:sanctum')->group(function () {
     include('mobile.php');
 });
 
-Route::prefix('/admin')->middleware('auth:sanctum')->group(function () {
+Route::prefix('/admin')->middleware(['auth:sanctum' , 'doctor'])->group(function () {
     include('admin.php');
 });
 

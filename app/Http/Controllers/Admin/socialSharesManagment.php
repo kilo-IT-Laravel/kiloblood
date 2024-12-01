@@ -4,40 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Koobeni;
 use App\Models\SocialShare;
+use App\Services\ShareManagement;
 use Exception;
 
 class socialSharesManagment extends Koobeni
 {
+
+    private $shareService;
+
+    public function __construct() {
+        $this->shareService = new ShareManagement();
+    }
+
     public function getAllShares()
     {
         try {
+            $data = $this->shareService->getAllSocial();
 
-            $where = [];
-
-            if($this->req->platform){
-                $where[] = ['platform', '=', $this->req->platform];
-            }
-
-            if($this->req->user_id){
-                $where[] = ['user_id', '=', $this->req->user_id];
-            }
-
-            $data = $this->findAll->allWithPagination([
-                'model' => SocialShare::class,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'select' => ['id', 'user_id', 'platform', 'created_at'],
-                'relations' => [
-                    'user' => function($query){
-                        $query->select('id' , 'name');
-                    }
-                ],
-                'where' => $where ?: null,
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -47,24 +30,11 @@ class socialSharesManagment extends Koobeni
     public function getAnalytics()
     {
         try {
-            $byPlatform = SocialShare::select('platform')
-                ->selectRaw('COUNT(*) as total_shares')
-                ->groupBy('platform')
-                ->get();
+            $byPlatform = $this->shareService->byPlatform();
 
-            $topUsers = SocialShare::with('user:id,name')
-                ->select('user_id')
-                ->selectRaw('COUNT(*) as share_count')
-                ->groupBy('user_id')
-                ->orderByDesc('share_count')
-                ->limit(10)
-                ->get();
+            $topUsers = $this->shareService->topUsers();
 
-            $dailyShares = SocialShare::selectRaw('DATE(created_at) as date')
-                ->selectRaw('COUNT(*) as total_shares')
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get();
+            $dailyShares = $this->shareService->dailyShares();
 
             return $this->dataResponse([
                 'by_platform' => $byPlatform,

@@ -18,12 +18,11 @@ return new class extends Migration
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
             $table->text('message')->nullable();
             $table->integer('quantity');  
-            $table->boolean('is_public')->default(true);
             $table->timestamps();
             $table->softDeletes();
             
             $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['requester_id', 'status', 'is_public']);
+            $table->index(['requester_id', 'status']);
         });
         
     }

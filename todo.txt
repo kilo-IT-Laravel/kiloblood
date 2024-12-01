@@ -8,12 +8,3 @@ friday - todos
 
 1 add log service to specific logic controller at admin
 
-3 fix migration the feature that require direct request no longer need
-
-4 middleware for doctor = admin and user
-
-5 service pattern
-
-6 fix if else condition in base query
-
-7 fix ->when() search request query always need to use where it giving if else more ugly

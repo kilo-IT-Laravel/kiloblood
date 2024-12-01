@@ -15,21 +15,17 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->enum('type', [
-                'donation_received',
+                'donation_offered',
                 'donation_confirmed',
                 'donation_rejected',
-                'request_received',
-                'request_declined'
             ]);
-            $table->morphs('notifiable');
-            $table->json('data');
-            $table->boolean('is_read')->default(false);
+            $table->text('message');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['user_id', 'type', 'is_read']);
+            $table->index(['user_id', 'type', 'read_at']);
         });
     }
 

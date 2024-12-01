@@ -109,7 +109,7 @@ class bannerManagment extends Koobeni
     {
         try {
 
-            $banners = $banners = $this->bannerService->getAllBanners(true);
+            $banners = $this->bannerService->getAllBanners(true);
 
             return $this->paginationDataResponse($banners);
         } catch (Exception $e) {

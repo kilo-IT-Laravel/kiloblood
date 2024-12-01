@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthorizeDoctor;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,7 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 \Illuminate\Session\Middleware\StartSession::class
             ]);
         }
-        $middleware->alias([]);
+        $middleware->alias([
+            'doctor' => AuthorizeDoctor::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (AuthenticationException $e, Request $request) {

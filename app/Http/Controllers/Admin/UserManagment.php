@@ -4,43 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\User;
+use App\Services\UserManagment as ServicesUserManagment;
 use Exception;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class UserManagment extends Koobeni
 {
+    private $userService;
+
+    public function __construct() {
+        $this->userService = new ServicesUserManagment();
+    }
+
     public function index()
     {
         try {
-            $data = $this->findAll->allWithPagination([
-                'model' => User::class,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'select' => [
-                    'id',
-                    'name',
-                    'phone_number',
-                    'blood_type',
-                    'location',
-                    'image',
-                    'available_for_donation',
-                    'created_at'
-                ],
-                'where' => [
-                    ['role', '!=', 'doctor']
-                ],
-                'search' => [
-                    'name' => $this->req->name,
-                    'location' => $this->req->location,
-                    'blood_type' => $this->req->blood_type,
-                    'phone_number' => $this->req->phone_number
-                ],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
+            $data = $this->userService->getAllUsers();
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -60,8 +38,6 @@ class UserManagment extends Koobeni
     public function update(int $userId)
     {
         try {
-            $user = User::findOrFail($userId);
-
             $data = $this->req->validate([
                 'name' => 'nullable|string|max:255',
                 'phone_number' => 'nullable|string|unique:users,phone_number,' . $userId,
@@ -70,16 +46,10 @@ class UserManagment extends Koobeni
                 'available_for_donation' => 'boolean'
             ]);
 
-            if ($this->req->hasFile('image')) {
-                if ($user->image) {
-                    Storage::disk('public')->delete($user->image);
-                }
-                $data['image'] = $this->req->file('image')->store('users', 'public');
-            }
+            $user = User::findOrFail($userId);
+            $updateUser = $this->userService->update($user , $data);
 
-            $user->update($data);
-
-            return $this->dataResponse($user);
+            return $this->dataResponse($updateUser);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -89,8 +59,8 @@ class UserManagment extends Koobeni
     {
         try {
             $user = User::findOrFail($userId);
-            $user->delete();
-            $this->logService->log(Auth::id(), 'soft_deleted', User::class, $user->id);
+            $this->userService->delete($user);
+            // $this->logService->log(Auth::id(), 'soft_deleted', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -100,36 +70,7 @@ class UserManagment extends Koobeni
     public function trashUserManagement()
     {
         try {
-            $data = $this->findAll->allWithPagination([
-                'model' => User::class,
-                'trash' => true,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'select' => [
-                    'id',
-                    'name',
-                    'phone_number',
-                    'blood_type',
-                    'location',
-                    'image',
-                    'available_for_donation',
-                    'created_at',
-                    'deleted_at'
-                ],
-                'where' => [
-                    ['role', '!=', 'doctor']
-                ],
-                'search' => [
-                    'name' => $this->req->name,
-                    'location' => $this->req->location,
-                    'blood_type' => $this->req->blood_type,
-                    'phone_number' => $this->req->phone_number
-                ],
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
+            $data = $this->userService->getAllUsers(true);
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -140,8 +81,8 @@ class UserManagment extends Koobeni
     {
         try {
             $user = User::withTrashed()->findOrFail($userId);
-            $user->restore();
-            $this->logService->log(Auth::id(), 'restored', User::class, $user->id);
+            $this->userService->restore($user);
+            // $this->logService->log(Auth::id(), 'restored', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -152,7 +93,7 @@ class UserManagment extends Koobeni
     {
         try {
             $user = User::withTrashed()->findOrFail($userId);
-            $user->forceDelete();
+            $this->userService->forceDelete($user);
             // $this->logService->log(Auth::id(), 'permenant_deleted', User::class, $user->id);
             return $this->dataResponse(null);
         } catch (Exception $e) {

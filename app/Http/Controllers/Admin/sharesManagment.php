@@ -4,39 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Koobeni;
 use App\Models\Share;
+use App\Services\ShareManagement;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class sharesManagment extends Koobeni
 {
+    private $shareService;
+
+    public function __construct()
+    {
+        $this->shareService = new ShareManagement();
+    }
+
     public function getAllShares()
     {
         try {
 
-            $where = [];
+            $data = $this->shareService->getAllShares();
 
-            if ($this->req->language) {
-                $where[] = ['language', '=', $this->req->language];
-            }
-
-            if ($this->req->is_active) {
-                $where[] = ['is_active', '=', $this->req->is_active];
-            }
-
-            $data = $this->findAll->allWithPagination([
-                'model' => Share::class,
-                'sort' => ['order', 'asc'],
-                'perPage' => $this->req->perPage,
-                'select' => ['id', 'title', 'language', 'is_active', 'order', 'created_at'],
-                'search' => [
-                    'title' => $this->req->search
-                ],
-                'where' => $where ?: null,
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -54,12 +40,7 @@ class sharesManagment extends Koobeni
                 'is_active' => 'boolean'
             ]);
 
-            if ($this->req->hasFile('image_url')) {
-                $path = $this->req->file('image_url')->store('shares', 'public');
-                $validated['image_url'] = $path;
-            }
-
-            $share = Share::create($validated);
+            $share = $this->shareService->create($validated);
 
             return $this->dataResponse($share);
         } catch (Exception $e) {
@@ -79,18 +60,9 @@ class sharesManagment extends Koobeni
             ]);
 
             $share = Share::findOrFail($shareId);
+            $updateShare = $this->shareService->update($share, $validated);
 
-            if ($this->req->hasFile('image_url')) {
-                if ($share->image_url) {
-                    Storage::disk('public')->delete($share->image_url);
-                }
-                $path = $this->req->file('image_url')->store('shares', 'public');
-                $validated['image_url'] = $path;
-            }
-
-            $share->update($validated);
-
-            return $this->dataResponse($share);
+            return $this->dataResponse($updateShare);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -100,7 +72,8 @@ class sharesManagment extends Koobeni
     {
         try {
             $share = Share::findOrFail($shareId);
-            $share->delete();
+            $this->shareService->delete($share);
+
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -111,7 +84,8 @@ class sharesManagment extends Koobeni
     {
         try {
             $share = Share::withTrashed()->findOrFail($this->req->id);
-            $share->restore();
+            $this->shareService->restore($share);
+
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -122,7 +96,8 @@ class sharesManagment extends Koobeni
     {
         try {
             $share = Share::withTrashed()->findOrFail($this->req->id);
-            $share->forceDelete();
+            $this->shareService->forceDelete($share);
+
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -132,31 +107,9 @@ class sharesManagment extends Koobeni
     public function getTrashed()
     {
         try {
-            $where = [];
 
-            if ($this->req->language) {
-                $where[] = ['language', '=', $this->req->language];
-            }
+            $data = $this->shareService->getAllShares(true);
 
-            if ($this->req->is_active) {
-                $where[] = ['is_active', '=', $this->req->is_active];
-            }
-
-            $data = $this->findAll->allWithPagination([
-                'model' => Share::class,
-                'trash' => true,
-                'sort' => ['order', 'asc'],
-                'perPage' => $this->req->perPage,
-                'select' => ['id', 'title', 'language', 'is_active', 'order', 'created_at'],
-                'search' => [
-                    'title' => $this->req->search
-                ],
-                'where' => $where ?: null,
-                'dateRange' => [
-                    'startDate' => $this->req->startDate,
-                    'endDate' => $this->req->endDate
-                ]
-            ]);
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -167,8 +120,11 @@ class sharesManagment extends Koobeni
     {
         try {
             $share = Share::findOrFail($shareId);
-            $share->update(['is_active' => !$share->is_active]);
-            return $this->dataResponse($share, $share->is_active ? 'Share template activated' : 'Share template deactivated',);
+            $updateShare = $this->shareService->toggleStatus($share);
+            return $this->dataResponse(
+                $updateShare,
+                $updateShare->is_active ? 'Share template activated' : 'Share template deactivated',
+            );
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -182,9 +138,7 @@ class sharesManagment extends Koobeni
                 'ids.*' => 'exists:banners,id'
             ]);
 
-            Share::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->restore();
+            $this->shareService->bulkRestore($this->req->ids);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {
@@ -200,19 +154,7 @@ class sharesManagment extends Koobeni
                 'ids.*' => 'exists:banners,id'
             ]);
 
-            $banners = Share::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->get();
-
-            foreach ($banners as $banner) {
-                if ($banner->image) {
-                    Storage::disk('public')->delete($banner->image);
-                }
-            }
-
-            Share::whereIn('id', $this->req->ids)
-                ->withTrashed()
-                ->forceDelete();
+            $this->shareService->bulkForceDelete($this->req->ids);
 
             return $this->dataResponse(null);
         } catch (Exception $e) {

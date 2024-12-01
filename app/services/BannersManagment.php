@@ -9,12 +9,6 @@ class BannersManagment extends BaseService
 {
     public function getAllBanners($withTrashed = false)
     {
-        $where = [];
-
-        if ($this->req->is_active) {
-            $where[] = ['is_active', '=', $this->req->is_active];
-        }
-
         return $this->findAll->allWithPagination([
             'model' => Banner::class,
             'sort' => ['order', 'asc'],
@@ -28,7 +22,9 @@ class BannersManagment extends BaseService
                 'is_active',
                 'created_at'
             ],
-            'where' => $where ?: null,
+            'where' => [
+                ['is_active', '=', $this->req->is_active]
+            ],
             'search' => [
                 'title' => $this->req->search,
                 'description' => $this->req->search

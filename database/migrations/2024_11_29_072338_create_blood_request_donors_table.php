@@ -24,10 +24,6 @@ return new class extends Migration
             ])->default('pending');
             $table->text('medical_records')->nullable();
             $table->integer('blood_amount')->nullable();
-            $table->text('rejection_reason')->nullable();
-            $table->timestamp('accepted_at')->nullable();
-            $table->timestamp('confirmed_at')->nullable();
-            $table->timestamp('completed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

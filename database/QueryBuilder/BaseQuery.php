@@ -6,32 +6,58 @@ use Closure;
 use Illuminate\Support\Facades\DB;
 use Storage\utils\ParamExtractor;
 
-class BaseQuery {
+class BaseQuery
+{
 
     protected $paramExtractor;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->paramExtractor = new ParamExtractor();
     }
 
-    public function extractParams(array $params , string $operation){
-        return $this->paramExtractor->extractParams($operation , $params);
+    public function extractParams(array $params, string $operation)
+    {
+        return $this->paramExtractor->extractParams($operation, $params);
+    }
+
+    protected function addCondition($query, $field, $operator, $value)
+    {
+        if ($value !== null && $value !== '') {
+            $query->where($field, $operator, $value);
+        }
+    }
+
+    protected function handleSearchConditions($query, array $search)
+    {
+        if (empty($search)) return;
+
+        $query->where(function ($query) use ($search) {
+            $firstField = true;
+            foreach ($search as $field => $term) {
+                if ($term !== null && $term !== '') {
+                    $method = $firstField ? 'where' : 'orWhere';
+                    $query->$method($field, 'like', "%{$term}%");
+                    $firstField = false;
+                }
+            }
+        });
     }
 
     public function buildQuery(
-        $Data, 
-        $sort, 
-        $relations = null, 
-        $select = null , 
+        $Data,
+        $sort,
+        $relations = null,
+        $select = null,
         $where = null,
         $aggregate = null,
         $dateRange = null,
         $search = [],
-        $onlyTrash = false 
-    ){
+        $onlyTrash = false
+    ) {
         $query = $Data::query();
 
-        if($onlyTrash){
+        if ($onlyTrash) {
             $query->onlyTrashed();
         }
 
@@ -63,40 +89,34 @@ class BaseQuery {
         }
 
         if ($where) {
-            foreach ($where as $condition) {
-                if($condition instanceof Closure) {
-                    $query->where($condition);
-                }else{
-                    $query->where($condition[0], $condition[1], $condition[2]);
+            $query->where(function ($query) use ($where) {
+                foreach ($where as $condition) {
+                    if ($condition instanceof Closure) {
+                        $query->where($condition);
+                    } else {
+                        if (isset($condition[2]) && $condition[2] !== null && $condition[2] !== '') {
+                            $query->where($condition[0], $condition[1], $condition[2]);
+                        }
+                    }
                 }
-            }
+            });
         }
 
-        if($aggregate){
-            foreach($aggregate as $alias => $function){
-                if(in_array($aggregate, ['count', 'sum', 'avg', 'min', 'max'])){
+        if ($aggregate) {
+            foreach ($aggregate as $alias => $function) {
+                if (in_array($aggregate, ['count', 'sum', 'avg', 'min', 'max'])) {
                     $query->addSelect([
-                        $alias => DB::raw("$function(*) as $alias") 
+                        $alias => DB::raw("$function(*) as $alias")
                     ]);
                 }
             }
         }
 
-        if($dateRange){
-            if(isset($dateRange['startDate']) && isset($dateRange['endDate'])){
-                $query->whereBetween('created_at', [$dateRange['startDate'], $dateRange['endDate']]);
-            }
+        if ($dateRange && isset($dateRange['startDate']) && isset($dateRange['endDate'])) {
+            $query->whereBetween('created_at', [$dateRange['startDate'], $dateRange['endDate']]);
         }
 
-        $query->when($search && is_array($search), function ($query) use ($search) {
-            $query->where(function ($query) use ($search) {
-                foreach ($search as $field => $term) {
-                    if ($term) {
-                        $query->orWhere($field, 'like', "%{$term}%");
-                    }
-                }
-            });
-        });
+        $this->handleSearchConditions($query, $search);
 
         return $query;
     }
