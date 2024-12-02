@@ -6,35 +6,83 @@ class FindAll extends BaseQuery
 {
     public function allWithPagination(array $params)
     {
-        $params = $this->extractParams($params , 'findAll');
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
+        $params = $this->extractParams($params, 'findAll');
+        $query = $this->buildQuery(
+            $params['model'],
+            $params['sort'],
+            $params['relations'],
+            $params['select'],
+            $params['where'],
+            $params['aggregate'],
+            $params['dateRange'],
+            $params['search'],
+            $params['trash'],
+            $params['rawSelects'],
+            $params['groupBy']
+        );
 
         return $query->paginate($params['perPage']);
     }
 
     public function allWithLimit(array $params)
     {
-        $params = $this->extractParams($params , 'findAll');
+        $params = $this->extractParams($params, 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
+        $query = $this->buildQuery(
+            $params['model'],
+            $params['sort'],
+            $params['relations'],
+            $params['select'],
+            $params['where'],
+            $params['aggregate'],
+            $params['dateRange'],
+            $params['search'],
+            $params['trash'],
+            $params['rawSelects'],
+            $params['groupBy']
+        );
 
         return $query->skip($params['offset'])->take($params['limit'])->get();
     }
 
     public function allData(array $params)
     {
-        $params = $this->extractParams($params , 'findAll');
+        $params = $this->extractParams($params, 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
+        $query = $this->buildQuery(
+            $params['model'],
+            $params['sort'],
+            $params['relations'],
+            $params['select'],
+            $params['where'],
+            $params['aggregate'],
+            $params['dateRange'],
+            $params['search'],
+            $params['trash'],
+            $params['rawSelects'],
+            $params['groupBy']
+        );
 
         return $query->get();
     }
 
     public function allDataWithSelect(array $params)
     {
-        $params = $this->extractParams($params , 'findAll');
+        $params = $this->extractParams($params, 'findAll');
 
-        $query = $this->buildQuery($params['model'], $params['sort'], $params['relations'], $params['select'], $params['where'], $params['aggregate'], $params['dateRange'], $params['search'] , $params['trash']);
+        $query = $this->buildQuery(
+            $params['model'],
+            $params['sort'],
+            $params['relations'],
+            $params['select'],
+            $params['where'],
+            $params['aggregate'],
+            $params['dateRange'],
+            $params['search'],
+            $params['trash'],
+            $params['rawSelects'],
+            $params['groupBy']
+        );
 
         return $query->get();
     }

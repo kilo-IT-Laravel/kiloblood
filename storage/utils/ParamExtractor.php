@@ -73,7 +73,9 @@ class ParamExtractor
             'offset' => $params['offset'] ?? 0,
             'aggregate' => $params['aggregate'] ?? null,
             'dateRange' => $params['dateRange'] ?? null,
-            'search' => $params['search'] ?? []
+            'search' => $params['search'] ?? [],
+            'rawSelects' => $params['rawSelects'] ?? [],
+            'groupBy' => $params['groupBy'] ?? null
         ];
     }
 
@@ -84,7 +86,9 @@ class ParamExtractor
             'id' => $params['id'] ?? null,
             'ids' => $params['ids'] ?? null,
             'relations' => $params['relations'] ?? null,
-            'select' => $params['select'] ?? null
+            'select' => $params['select'] ?? null,
+            'rawSelects' => $params['rawSelects'] ?? [],
+            'groupBy' => $params['groupBy'] ?? null
         ];
     }
 

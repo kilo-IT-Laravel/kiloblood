@@ -37,11 +37,30 @@ class BaseQuery
             foreach ($search as $field => $term) {
                 if ($term !== null && $term !== '') {
                     $method = $firstField ? 'where' : 'orWhere';
-                    $query->$method($field, 'like', "%{$term}%");
+
+                    if(strpos($field, '.') !== false){
+                        [$relation , $column] = explode('.' , $field);
+                        $query->$method(function($q) use ($relation, $column, $term) {
+                            $q->whereHas($relation, function($q) use ($column, $term) {
+                                $q->where($column, 'like', "%{$term}%");
+                            });
+                        });
+                    }else{
+                        $query->$method($field, 'like', "%{$term}%");
+                    }
+
                     $firstField = false;
                 }
             }
         });
+    }
+
+    protected $rawSelects = [];
+
+    protected function handleRawSelects($query){
+        foreach($this->rawSelects as $rawSelect){
+            $query->selectRaw($rawSelect);
+        }
     }
 
     public function buildQuery(
@@ -53,9 +72,13 @@ class BaseQuery
         $aggregate = null,
         $dateRange = null,
         $search = [],
-        $onlyTrash = false
+        $onlyTrash = false,
+        $rawSelects = [],
+        $groupBy = null
     ) {
         $query = $Data::query();
+
+        $this->rawSelects = $rawSelects;
 
         if ($onlyTrash) {
             $query->onlyTrashed();
@@ -74,6 +97,8 @@ class BaseQuery
         if ($select) {
             $query->select($select);
         }
+
+        $this->handleRawSelects($query);
 
         if (is_array($sort)) {
             $query->orderBy($sort[0], $sort[1]);
@@ -117,6 +142,10 @@ class BaseQuery
         }
 
         $this->handleSearchConditions($query, $search);
+
+        if($groupBy){
+            $query->groupBy($groupBy);
+        }
 
         return $query;
     }

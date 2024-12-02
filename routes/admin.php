@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\bannerManagment;
+use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\EventManagement;
+use App\Http\Controllers\Admin\RequesterController;
 use App\Http\Controllers\Admin\UserManagment;
 use App\Http\Controllers\sharesManagment;
 use App\Http\Controllers\socialSharesManagment;
@@ -67,4 +69,24 @@ Route::prefix('social-shares')->group(function () {
     Route::get('/', [socialSharesManagment::class, 'getAllShares']);
     Route::get('/analytics', [socialSharesManagment::class, 'getAnalytics']);
     Route::delete('/bulk-delete', [socialSharesManagment::class, 'destroy']);
+});
+
+
+Route::prefix('/request')->group(function(){
+    Route::get('/', [RequesterController::class , 'getAllRequesters']);
+    Route::get('/{bloodType}' , [RequesterController::class , 'userRelatedRequest']);
+    Route::get('/requester/{requesterId}' , [RequesterController::class , 'getUserRequestDetails']);
+    Route::delete('/requester/{requesterId}' , [RequesterController::class , 'delete']);
+    Route::get('/trash' , [RequesterController::class , 'getTrashed']);
+    Route::post('/requester/{requesterId}/restore' , [RequesterController::class , 'restore']);
+    Route::delete('/requester/{requesterId}/force' , [RequesterController::class , 'forceDelete']);
+});
+
+Route::prefix('/donors')->group(function(){
+    Route::get('/' , [DonorController::class , 'viewDonors']);
+    Route::get('/{donorId}' , [DonorController::class , 'donorDetails']);
+    Route::delete('/{donorId}' , [DonorController::class , 'delete']);
+    Route::get('/trash' , [DonorController::class , 'trashed']);
+    Route::post('/{donorId}/restore' , [DonorController::class , 'restore']);
+    Route::delete('/{donorId}/force' , [DonorController::class , 'forceDelete']);
 });

@@ -16,10 +16,10 @@ return new class extends Migration
             $table->unsignedBigInteger('blood_request_id');
             $table->unsignedBigInteger('donor_id');
             $table->enum('status', [
-                'pending',
+                'pending', /// remove
                 'accepted',
                 'confirmed',
-                'completed',
+                'completed', /// remove
                 'rejected'
             ])->default('pending');
             $table->text('medical_records')->nullable();

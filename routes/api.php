@@ -37,7 +37,7 @@ Route::prefix('/admin')->middleware(['auth:sanctum' , 'doctor'])->group(function
     include('admin.php');
 });
 
-Route::get('/test', [test::class, 'bruh']);
+Route::get('/test/{id}', [test::class, 'bruh']);
 
 // Route::get('/deleteTokens/{userId}', [Authentication::class, 'terminateAllDeviceTokens']);
 

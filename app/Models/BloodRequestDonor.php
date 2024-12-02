@@ -33,7 +33,7 @@ class BloodRequestDonor extends Model
         return $this->belongsTo(BloodRequest::class);
     }
 
-    public function donors()
+    public function donor()
     {
         return $this->belongsTo(User::class, 'donor_id');
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Hooks\HookService;
 use App\Koobeni;
+use App\Models\User;
 use App\Services\TestService;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,13 +18,15 @@ class test extends Koobeni
         $this->test = new TestService();
     }
 
-    public function bruh()
+    public function bruh($id)
     {
         try {
 
-            $data = $this->test->testing();
+            // $data = $this->test->testing();
 
-            return $this->paginationDataResponse($data);
+            $data = User::findOrFail($id);
+
+            return $this->dataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

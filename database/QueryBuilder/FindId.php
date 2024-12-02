@@ -12,8 +12,10 @@ class FindId extends BaseQuery {
         $id = $params['id'];        
         $relations = $params['relations'] ?? null; 
         $select = $params['select'] ?? null;
+        $rawSelects = $params['rawSelect'] ?? [];
+        $groupBy = $params['groupBy'] ?? null;
 
-        $query = $this->buildQuery($model, $relations, $select);
+        $query = $this->buildQuery($model, $relations, $select , $rawSelects , $groupBy);
 
         return $query->find($id);
     }
@@ -26,8 +28,10 @@ class FindId extends BaseQuery {
         $ids = $params['ids']; 
         $relations = $params['relations'] ?? null;  
         $select = $params['select'] ?? null;    
+        $rawSelects = $params['rawSelect'] ?? [];
+        $groupBy = $params['groupBy'] ?? null;
 
-        $query = $this->buildQuery($model, $relations, $select);
+        $query = $this->buildQuery($model, $relations, $select , $rawSelects , $groupBy);
 
         return $query->whereIn('id', $ids)->get();
     }
