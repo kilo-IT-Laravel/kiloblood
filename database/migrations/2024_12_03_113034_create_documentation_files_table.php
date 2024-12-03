@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('documentation_files', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('message');
-            $table->timestamp('read_at')->nullable();
+            $table->unsignedBigInteger('blood_request_donor_id');
+            $table->string('file_path');
+            $table->string('file_type');
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
+        
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['user_id', 'type', 'read_at']);
+            $table->foreign('blood_request_donor_id')->references('id')->on('blood_request_donors')->onDelete('cascade');
         });
     }
 
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('documentation_files');
     }
 };
