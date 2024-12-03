@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Koobeni;
 use App\Models\AuditLog;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class AuditLogController extends Koobeni

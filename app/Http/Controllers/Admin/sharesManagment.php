@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Share;
@@ -8,7 +8,6 @@ use Exception;
 
 class sharesManagment extends Koobeni
 {
-
     public function getAllShares()
     {
         try {

@@ -23,7 +23,9 @@ class BaseQuery
 
     protected function addCondition($query, $field, $operator, $value)
     {
-        if ($value !== null && $value !== '') {
+        if ($value instanceof Closure) {
+            $query->whereIn($field, $value);
+        } elseif ($value !== null && $value !== '') {
             $query->where($field, $operator, $value);
         }
     }

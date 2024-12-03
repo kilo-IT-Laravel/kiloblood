@@ -1,39 +1,42 @@
 <?php
 
+use App\Http\Controllers\Mobile\BannerController;
 use App\Http\Controllers\Mobile\BloodRequestController;
-use App\Http\Controllers\Mobile\DonorController;
-use App\Http\Controllers\Mobile\RequesterController;
+use App\Http\Controllers\Mobile\EventController;
+use App\Http\Controllers\Mobile\Notification;
+use App\Http\Controllers\Mobile\ShareController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('banners')->group(function () {
-    Route::get('/', 'Mobile\BannerController@index');
-    Route::get('/{id}', 'Mobile\BannerController@show');
+    Route::get('/', [BannerController::class , 'index']);
+    Route::get('/{id}', [BannerController::class , 'show']);
 });
 
 Route::prefix('events')->group(function () {
-    Route::get('/', 'Mobile\EventController@index');
-    Route::get('/{id}', 'Mobile\EventController@show');
+    Route::get('/', [EventController::class , 'index']);
+    Route::get('/{id}', [EventController::class , 'show']);
 });
 
 Route::prefix('shares')->group(function () {
-    Route::get('/', 'Mobile\ShareController@index');
-    Route::post('/record', 'Mobile\ShareController@recordShare');
+    Route::get('/', [ShareController::class , 'index']);
+    Route::post('/record', [ShareController::class , 'recordShare']);
 });
 
 Route::prefix('requests')->group(function(){
-    Route::get('/', [BloodRequestController::class , 'index']);
-    Route::post('/', [BloodRequestController::class , 'store']);
-    Route::get('/my-requests' , [BloodRequestController::class , 'myRequests']);
-    Route::post('/reject/{requestId}', [BloodRequestController::class , 'hideRequest']);
-    Route::put('/cancel/{requestId}' , [BloodRequestController::class , 'cancelRequest']);
+    Route::get('blood-requests', [BloodRequestController::class, 'index']);
+    Route::post('blood-requests', [BloodRequestController::class, 'store']);  
+    Route::get('my-blood-request-donors', [BloodRequestController::class, 'viewMyRequestDonors']);
+    Route::get('donation-request-report', [BloodRequestController::class, 'requestDonationReport']); 
+    Route::get('donation-report', [BloodRequestController::class, 'donationRequestReport']); 
+    Route::post('donate/{requestId}', [BloodRequestController::class, 'donate']);  
+    Route::put('accept-donor/{donorId}', [BloodRequestController::class, 'acceptDonor']); 
+    Route::put('cancel-donation/{donorId}', [BloodRequestController::class, 'cancelDonation']); 
+    Route::get('blood-requests/{id}', [BloodRequestController::class, 'show']); 
+    Route::put('blood-requests/reject/{id}', [BloodRequestController::class, 'rejectRequest']); 
+    Route::get('my-blood-donors/{id}', [BloodRequestController::class, 'viewMyDonorDetails']); 
 });
 
-Route::prefix('donors')->group(function(){
-    Route::post('/accept/{requestId}' , [DonorController::class , 'acceptTheDonate']);
-    Route::get('/my-donations' , [DonorController::class , 'myDonations']);
-});
-
-Route::prefix('requester')->group(function(){
-    Route::post('/confirm-donation/{requestId}/{donorId}' , [RequesterController::class , 'confirmDonation']);
-    Route::get('/view-request-donor/{requestId}' , [RequesterController::class , 'viewRequestDonors']);
+Route::prefix('notifications')->group(function(){
+    Route::get('/', [Notification::class , 'index']);
+    Route::get('/{id}', [Notification::class , 'markAsRead']);
 });

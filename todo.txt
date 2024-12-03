@@ -6,5 +6,12 @@
 
 friday - todos
 
-1 add log service to specific logic controller at admin
+2 register now need documentation file = medical recordShare
 
+3 donor who donate must also giving medical records ducumentation
+
+5 revamping certain area features
+
+6 mobile shares and social shares
+
+7 security both admin and user
