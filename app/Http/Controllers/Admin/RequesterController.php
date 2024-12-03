@@ -22,13 +22,14 @@ class RequesterController extends Koobeni
                     'COUNT(*) as user_count',
                     'COUNT(CASE WHEN available_for_donation = true THEN 1 END) as available_donors',
                     '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type) as request_count',
-                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "completed") as completed_count',
-                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "pending") as pending_count'
+                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "accepted") as accepted_count',
+                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "rejected") as rejected_count'
                 ],
                 'groupBy' => 'blood_type',
                 'perPage' => $this->req->perPage,
                 'search' => [
-                    'blood_type' => $this->req->search
+                    'blood_type' => $this->req->search,
+                    'blood_requests.status' => $this->req->status
                 ]
             ]);
             return $this->paginationDataResponse($data);
