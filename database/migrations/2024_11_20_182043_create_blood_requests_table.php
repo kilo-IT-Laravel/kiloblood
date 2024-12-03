@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('requester_id');
             $table->string('blood_type');
-            $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
+            $table->enum('status', ['accepted' , 'rejected'])->default('pending');
             $table->text('message')->nullable();
             $table->integer('quantity');  
             $table->timestamps();

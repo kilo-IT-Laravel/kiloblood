@@ -4,19 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Event;
-use App\Services\EventManagement as ServicesEventManagement;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class EventManagement extends Koobeni
 {
-    private $eventService;
-
-    public function __construct()
-    {
-        $this->eventService = new ServicesEventManagement();
-    }
-
     public function index()
     {
         try {

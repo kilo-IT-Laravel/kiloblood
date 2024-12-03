@@ -4,6 +4,10 @@ namespace App;
 
 use App\Hooks\HookService;
 use App\Services\AuditLog;
+use App\Services\BannersManagment;
+use App\Services\EventManagement;
+use App\Services\ShareManagement;
+use App\Services\UserManagment;
 use Storage\utils\CustomResponse;
 use Storage\utils\Exceptions;
 use Storage\utils\kobeniSecurity;
@@ -34,12 +38,24 @@ class Koobeni extends BaseController
 
     protected $paramExtractor;
 
+    /////// services;
+    protected $bannerService;
+    protected $eventService;
+    protected $shareService;
+    protected $userService;
+
     public function __construct(HookService $hookService)
     {
         $this->bootService();
         $this->paramExtractor = new ParamExtractor();
         $this->aop = $hookService->getAop();
         $this->logService = new AuditLog();
+        
+        ///// services
+        $this->bannerService = new BannersManagment();
+        $this->eventService = new EventManagement();
+        $this->shareService = new ShareManagement();
+        $this->userService = new UserManagment();
     }
 
     // public function getCollection()

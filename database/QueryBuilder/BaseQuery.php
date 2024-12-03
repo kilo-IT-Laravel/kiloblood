@@ -38,14 +38,14 @@ class BaseQuery
                 if ($term !== null && $term !== '') {
                     $method = $firstField ? 'where' : 'orWhere';
 
-                    if(strpos($field, '.') !== false){
-                        [$relation , $column] = explode('.' , $field);
-                        $query->$method(function($q) use ($relation, $column, $term) {
-                            $q->whereHas($relation, function($q) use ($column, $term) {
+                    if (strpos($field, '.') !== false) {
+                        [$relation, $column] = explode('.', $field);
+                        $query->$method(function ($q) use ($relation, $column, $term) {
+                            $q->whereHas($relation, function ($q) use ($column, $term) {
                                 $q->where($column, 'like', "%{$term}%");
                             });
                         });
-                    }else{
+                    } else {
                         $query->$method($field, 'like', "%{$term}%");
                     }
 
@@ -57,8 +57,9 @@ class BaseQuery
 
     protected $rawSelects = [];
 
-    protected function handleRawSelects($query){
-        foreach($this->rawSelects as $rawSelect){
+    protected function handleRawSelects($query)
+    {
+        foreach ($this->rawSelects as $rawSelect) {
             $query->selectRaw($rawSelect);
         }
     }
@@ -85,13 +86,16 @@ class BaseQuery
         }
 
         if ($relations) {
+            $withArray = [];
             foreach ($relations as $relation => $closure) {
                 if ($closure instanceof Closure) {
-                    $query->with([$relation => $closure]);
+                    $withArray[$relation] = $closure;
                 } else {
-                    $query->with($relation);
+                    $withArray[] = $relation;
                 }
             }
+
+            $query->with($withArray);
         }
 
         if ($select) {
@@ -143,7 +147,7 @@ class BaseQuery
 
         $this->handleSearchConditions($query, $search);
 
-        if($groupBy){
+        if ($groupBy) {
             $query->groupBy($groupBy);
         }
 

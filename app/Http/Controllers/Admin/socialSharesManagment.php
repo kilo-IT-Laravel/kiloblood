@@ -4,17 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Koobeni;
 use App\Models\SocialShare;
-use App\Services\ShareManagement;
 use Exception;
 
 class socialSharesManagment extends Koobeni
 {
-
-    private $shareService;
-
-    public function __construct() {
-        $this->shareService = new ShareManagement();
-    }
 
     public function getAllShares()
     {

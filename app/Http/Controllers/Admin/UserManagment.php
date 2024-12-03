@@ -4,16 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\User;
-use App\Services\UserManagment as ServicesUserManagment;
 use Exception;
 
 class UserManagment extends Koobeni
 {
-    private $userService;
-
-    public function __construct() {
-        $this->userService = new ServicesUserManagment();
-    }
 
     public function index()
     {
