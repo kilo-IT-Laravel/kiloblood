@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('phonenumber_verified_at')->nullable()->default(null);
             $table->boolean('available_for_donation')->default(true);
             $table->string('image')->nullable();
+            $table->timestamp('trusted_at')->nullable()->default(null);
             $table->string('location');
             $table->string('password');
             $table->softDeletes();
