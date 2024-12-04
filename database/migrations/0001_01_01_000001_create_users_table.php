@@ -19,7 +19,8 @@ return new class extends Migration
             $table->enum('role', ['user', 'doctor'])->default('user');
             $table->timestamp('phonenumber_verified_at')->nullable()->default(null);
             $table->boolean('available_for_donation')->default(true);
-            $table->string('image')->nullable();
+            $table->unsignedBigInteger('file_id')->nullable();
+            $table->unsignedBigInteger('medical_file_id')->nullable();
             $table->timestamp('trusted_at')->nullable()->default(null);
             $table->string('location');
             $table->string('password');
@@ -29,6 +30,8 @@ return new class extends Migration
 
             $table->index(['phone_number' ,'location' , 'created_at']);
 
+            $table->foreign('file_id')->references('id')->on('files')->onDelete('set null');
+            $table->foreign('medical_file_id')->references('id')->on('files')->onDelete('set null');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

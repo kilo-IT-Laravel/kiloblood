@@ -16,11 +16,16 @@ class Banner extends Model
         'description',
         'link',
         'order',
-        'is_active'
+        'is_active',
+        'file_id'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order' => 'integer'
     ];
+
+    public function file(){
+        return $this->belongsTo(File::class);
+    }
 }

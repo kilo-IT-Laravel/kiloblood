@@ -6,6 +6,7 @@ use App\Hooks\HookService;
 use App\Services\AuditLog;
 use App\Services\BannersManagment;
 use App\Services\EventManagement;
+use App\Services\FIleService;
 use App\Services\ShareManagement;
 use App\Services\UserManagment;
 use Storage\utils\CustomResponse;
@@ -43,6 +44,7 @@ class Koobeni extends BaseController
     protected $eventService;
     protected $shareService;
     protected $userService;
+    protected $fileService;
 
     public function __construct(HookService $hookService)
     {
@@ -56,6 +58,7 @@ class Koobeni extends BaseController
         $this->eventService = new EventManagement();
         $this->shareService = new ShareManagement();
         $this->userService = new UserManagment();
+        $this->fileService = new FIleService();
     }
 
     // public function getCollection()

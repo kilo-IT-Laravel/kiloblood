@@ -6,6 +6,7 @@ use App\Koobeni;
 use App\Models\BloodRequest;
 use App\Models\BloodRequestDonor;
 use App\Models\DocumentationFile;
+use App\Models\File;
 use App\Models\Notification;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -41,9 +42,21 @@ class BloodRequestController extends Koobeni
         }
     }
 
-    public function show()
-    { /// donation request details
+    public function show(int $requestId)
+    {
         try {
+            $request = BloodRequest::with([
+                'requester:id,name,location,blood_type',
+                'documentationFile'
+            ])->findOrFail($requestId);
+
+            return $this->dataResponse([
+                'request' => $request,
+                'can_donate' => !BloodRequestDonor::where([
+                    'blood_request_id' => $requestId,
+                    'donor_id' => Auth::id()
+                ])->exists()
+            ]);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -107,14 +120,25 @@ class BloodRequestController extends Koobeni
         }
     }
 
-    public function viewMyDonorDetails()
-    { ///// request donations  details
+    public function viewMyDonorDetails(int $donorId)
+    {
         try {
+            $donorRequest = BloodRequestDonor::with([
+                'donor:id,name,location,blood_type',
+                'bloodRequest:id,blood_type,quantity,message',
+                'documentationFile'
+            ])->findOrFail($donorId);
+
+            $request = BloodRequest::findOrFail($donorRequest->blood_request_id);
+            if ($request->requester_id !== Auth::id()) {
+                return $this->error('Unauthorized', 403);
+            }
+
+            return $this->dataResponse($donorRequest);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
-
     public function donate(int $requestId, int $docId)
     {
         try {
@@ -123,7 +147,8 @@ class BloodRequestController extends Koobeni
             $validated = $this->req->validate([
                 'blood_amount' => 'required|integer|min:1',
                 'medical_records' => 'required|string',
-                'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248'
+                'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248',
+                'url' => 'required|string'
             ]);
 
             $donor = BloodRequestDonor::create([
@@ -136,7 +161,7 @@ class BloodRequestController extends Koobeni
 
             if ($this->req->hasFile('medical_file')) {
                 $path = $this->req->file('medical_records')->store('medical_records', 'public');
-                $query = DocumentationFile::findOrFail($docId);
+                $query = File::findOrFail($docId);
                 $query->update([
                     'user_id' => Auth::id(),
                     'blood_request_donor_id' => $donor->donor_id,
@@ -147,7 +172,8 @@ class BloodRequestController extends Koobeni
 
             Notification::create([
                 'user_id' => $request->requester_id,
-                'message' => 'Someone has offered to donate blood for your request'
+                'message' => 'Someone has offered to donate blood for your request',
+                'url' => $this->req->url
             ]);
 
             return $this->dataResponse(null, 'Donation offer sent');
@@ -160,7 +186,7 @@ class BloodRequestController extends Koobeni
     {
         try {
             $data = $this->findAll->allWithPagination([
-                'model' => DocumentationFile::class,
+                'model' => File::class,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
                 'dateRange' => [
@@ -191,6 +217,11 @@ class BloodRequestController extends Koobeni
     public function acceptDonor(int $donorId)
     {
         try {
+
+            $this->req->validate([
+                'url' => 'required|string'
+            ]);
+
             $donor = BloodRequestDonor::findOrFail($donorId);
             $request  = BloodRequest::findOrFail($donor->blood_request_id);
 
@@ -210,7 +241,8 @@ class BloodRequestController extends Koobeni
 
             Notification::create([
                 'user_id' => $donor->donor_id,
-                'message' => 'Your recent donation has been successfully processed'
+                'message' => 'Your recent donation has been successfully processed',
+                'url' => $this->req->url
             ]);
 
             return $this->dataResponse(null, 'Donation completed');

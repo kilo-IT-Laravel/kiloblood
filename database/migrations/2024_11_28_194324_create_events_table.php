@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->string('location');
-            $table->string('image')->nullable();
+            $table->unsignedBigInteger('file_id')->nullable();
             $table->datetime('start_date');
             $table->datetime('end_date');
             $table->boolean('is_active')->default(true);
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['is_active', 'start_date', 'order']);
+            $table->foreign('file_id')->references('id')->on('files')->onDelete('set null');
         });
     }
 

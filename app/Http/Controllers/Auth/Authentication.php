@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Koobeni;
-use App\Models\DocumentationFile;
+use App\Models\BloodRequest;
+use App\Models\BloodRequestDonor;
+use App\Models\File;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class Authentication extends Koobeni
 {
@@ -19,6 +22,7 @@ class Authentication extends Koobeni
                 'password' => 'required|string|confirmed',
                 'blood_type' => 'required|string',
                 'location' => 'required|string',
+                'avatar' => 'required|file|mimes:jpeg,png,jpg|max:2048',
                 'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248',
                 'role' => 'required|in:user,doctor',
                 'description' => 'nullable|string'
@@ -29,15 +33,17 @@ class Authentication extends Koobeni
                 'credentials' => $cred
             ]);
 
-            if ($this->req->hasFile('medical_file')) {
-                $path = $this->req->file('medical_file')->store('medical_records', 'public');
-                DocumentationFile::create([
-                    'user_id' => $user->id,
-                    'file_path' => $path,
-                    'file_type' => $this->req->file('medical_file')->getClientOriginalExtension(),
-                    'description' => $this->req->description
-                ]);
+            if($this->req->hasFile('avatar')){
+                $file = $this->fileService->uploading('avatar' , 'pf_img');
+                $user->file_id = $file->id;
             }
+
+            if ($this->req->hasFile('medical_file')) {
+                $file =$this->fileService->uploading('medical_file', 'medical_records');
+                $user->medical_file_id = $file->id;
+            }
+
+            $user->save();
 
             return $this->dataResponse($user);
         } catch (Exception $e) {
@@ -78,7 +84,17 @@ class Authentication extends Koobeni
     public function show()
     {
         try {
-            return $this->dataResponse($this->req->user());
+            $data = $this->req->user();
+            return $this->dataResponse([
+                'id' => $data->id,
+                'name' => $data->name,
+                'avatar' => $data->image,
+                'phone_number' => $data->phone_number,
+                'location' => $data->location,
+                'trusted' => $data->trusted_at,
+                'blood_type' => $data->blood_type,
+                'available_for_donation' => $data->available_for_donation
+            ]);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -133,4 +149,39 @@ class Authentication extends Koobeni
     //         return $this->handleException($e, $this->req);
     //     }
     // }
+
+    public function getStats()
+    {
+        try {
+            $bloodType = $this->req->user()->blood_type;
+
+            $donationCount = BloodRequestDonor::where('donor_id', Auth::id())
+                ->where('status', 'completed')
+                ->count();
+
+            $requestCount = BloodRequest::where('requester_id', Auth::id())
+                ->count();
+
+            return $this->dataResponse([
+                'blood_type' => $bloodType,
+                'donations_count' => $donationCount,
+                'requests_count' => $requestCount
+            ]);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function updateAvailability()
+    {
+        try {
+            $this->req->user()->update([
+                'available_for_donation' => $this->req->available
+            ]);
+
+            return $this->dataResponse(null, 'Availability updated');
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
 }

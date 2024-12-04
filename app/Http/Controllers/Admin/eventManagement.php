@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Event;
+use App\Models\Notification;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,6 +45,14 @@ class EventManagement extends Koobeni
             ]);
 
             $event = $this->eventService->create($data);
+
+            if($event->is_active){
+                Notification::create([
+                    'user_id' => null, 
+                    'message' => "New event: {$event->title} at {$event->location}"
+                ]);
+            }
+
             return $this->dataResponse($event);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);

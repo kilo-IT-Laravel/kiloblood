@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
+            $table->unsignedBigInteger('file_id')->nullable();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->string('link')->nullable();
@@ -22,6 +22,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index(['is_active', 'title', 'order']);
+
+            $table->foreign('file_id')->references('id')->on('files')->onDelete('set null');
         });
     }
 

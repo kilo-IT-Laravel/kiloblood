@@ -2,11 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\BloodRequestDonor;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
 class UserManagment extends BaseService
 {
+    const MINIMUM_DONATIONS = 5;
+    const MINIMUM_DAYS_ACTIVE = 30;
+    const MINIMUM_COMPLETION_RATE = 0.8;
 
     public function getAllUsers($withTrashed = false)
     {
@@ -69,6 +73,27 @@ class UserManagment extends BaseService
         $this->deleteImage($user->image);
         $user->forceDelete();
         return true;
+    }
+
+    public function isEligibleForTrust(User $user)
+    {
+        $accountAge = $user->created_at->diffInDays(now());
+        if ($accountAge < self::MINIMUM_DAYS_ACTIVE) {
+            return false;
+        }
+
+        $completedDonations = BloodRequestDonor::where('donor_id', $user->id)
+            ->where('status', 'completed')
+            ->count();
+
+        if ($completedDonations < self::MINIMUM_DONATIONS) {
+            return false;
+        }
+
+        $totalRequests = BloodRequestDonor::where('donor_id', $user->id)->count();
+        $completionRate = $totalRequests > 0 ? $completedDonations / $totalRequests : 0;
+
+        return $completionRate >= self::MINIMUM_COMPLETION_RATE;
     }
 
     private function uploadImage($image)

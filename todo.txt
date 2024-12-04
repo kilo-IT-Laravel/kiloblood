@@ -6,12 +6,6 @@
 
 friday - todos
 
-2 register now need documentation file = medical recordShare
+5 revamping notification system use it with FMC
 
-3 donor who donate must also giving medical records ducumentation
-
-5 revamping certain area features
-
-6 mobile shares and social shares
-
-7 security both admin and user
+6 fix all other tables need reusable file_id

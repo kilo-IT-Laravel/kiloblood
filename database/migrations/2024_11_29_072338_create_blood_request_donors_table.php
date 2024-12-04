@@ -20,9 +20,11 @@ return new class extends Migration
             ])->default('pending');
             $table->text('medical_records')->nullable();
             $table->integer('blood_amount')->nullable();
+            $table->unsignedBigInteger('file_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->foreign('file_id')->references('id')->on('files')->onDelete('set null');
             $table->foreign('blood_request_id')->references('id')->on('blood_requests')->onDelete('cascade');
             $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['blood_request_id', 'donor_id']);
