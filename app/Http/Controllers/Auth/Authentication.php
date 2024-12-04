@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Koobeni;
+use App\Models\DocumentationFile;
 use App\Models\User;
 use Exception;
 
@@ -18,13 +19,25 @@ class Authentication extends Koobeni
                 'password' => 'required|string|confirmed',
                 'blood_type' => 'required|string',
                 'location' => 'required|string',
-                'role' => 'required|in:user,doctor'
+                'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248',
+                'role' => 'required|in:user,doctor',
+                'description' => 'nullable|string'
             ]);
 
             $user = $this->TokenRegister([
                 'model' => User::class,
                 'credentials' => $cred
             ]);
+
+            if ($this->req->hasFile('medical_file')) {
+                $path = $this->req->file('medical_file')->store('medical_records', 'public');
+                DocumentationFile::create([
+                    'user_id' => $user->id,
+                    'file_path' => $path,
+                    'file_type' => $this->req->file('medical_file')->getClientOriginalExtension(),
+                    'description' => $this->req->description
+                ]);
+            }
 
             return $this->dataResponse($user);
         } catch (Exception $e) {
