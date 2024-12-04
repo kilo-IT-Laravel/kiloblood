@@ -42,4 +42,8 @@ class BloodRequestDonor extends Model
     {
         return $this->hasOne(BloodDonation::class, 'blood_request_donor_id');
     }
+
+    public function documentationFile(){
+        return $this->hasOne(DocumentationFile::class);
+    }
 }

@@ -94,6 +94,10 @@ class User extends Authenticatable
         return $this->hasMany(TestToken::class);
     }
 
+    public function documentationFiles(){
+        return $this->hasMany(DocumentationFile::class);
+    }
+
     public function hasHiddenRequest($requestId){
         return $this->hiddenRequests()
         ->where('blood_request_id' , $requestId)
