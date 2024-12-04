@@ -67,7 +67,7 @@ class MedicalRecords extends Koobeni
         }
     }
 
-    public function getTrashed()
+    public function trashed()
     {
         try {
             $data = $this->findAll->allWithPagination([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile;
 use App\Koobeni;
 use App\Models\BloodRequest;
 use App\Models\BloodRequestDonor;
+use App\Models\DocumentationFile;
 use App\Models\Notification;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -114,17 +115,18 @@ class BloodRequestController extends Koobeni
         }
     }
 
-    public function donate(int $requestId)
+    public function donate(int $requestId, int $docId)
     {
         try {
             $request = BloodRequest::findOrFail($requestId);
 
             $validated = $this->req->validate([
                 'blood_amount' => 'required|integer|min:1',
-                'medical_records' => 'required|string'
+                'medical_records' => 'required|string',
+                'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248'
             ]);
 
-            BloodRequestDonor::create([
+            $donor = BloodRequestDonor::create([
                 'blood_request_id' => $request->id,
                 'donor_id' => Auth::id(),
                 'status' => 'pending',
@@ -132,12 +134,55 @@ class BloodRequestController extends Koobeni
                 'medical_records' => $validated['medical_records']
             ]);
 
+            if ($this->req->hasFile('medical_file')) {
+                $path = $this->req->file('medical_records')->store('medical_records', 'public');
+                $query = DocumentationFile::findOrFail($docId);
+                $query->update([
+                    'user_id' => Auth::id(),
+                    'blood_request_donor_id' => $donor->donor_id,
+                    'file_path' => $path,
+                    'file_type' => $this->req->file('medical_file')->getClientOriginalExtension()
+                ]);
+            }
+
             Notification::create([
                 'user_id' => $request->requester_id,
                 'message' => 'Someone has offered to donate blood for your request'
             ]);
 
             return $this->dataResponse(null, 'Donation offer sent');
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function MedicalRecords()
+    {
+        try {
+            $data = $this->findAll->allWithPagination([
+                'model' => DocumentationFile::class,
+                'sort' => 'latest',
+                'perPage' => $this->req->perPage,
+                'dateRange' => [
+                    'startDate' => $this->req->startDate,
+                    'endDate' => $this->req->endDate
+                ],
+                'select' => [
+                    'id',
+                    'user_id',
+                    'file_path',
+                    'file_type',
+                    'description'
+                ],
+                'where' => [
+                    ['user_id', '=', function ($q) {
+                        return $q->select('id')
+                            ->from('users')
+                            ->where('id', Auth::id());
+                    }]
+                ]
+            ]);
+            return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

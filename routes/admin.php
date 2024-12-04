@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\analytics;
 use App\Http\Controllers\Admin\bannerManagment;
 use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\EventManagement;
+use App\Http\Controllers\Admin\MedicalRecords;
 use App\Http\Controllers\Admin\RequesterController;
 use App\Http\Controllers\Admin\UserManagment;
 use App\Http\Controllers\Admin\sharesManagment;
@@ -85,6 +86,14 @@ Route::prefix('social-shares')->group(function () {
     Route::delete('/bulk-delete', [socialSharesManagment::class, 'destroy']);
 });
 
+Route::prefix('medical-records')->group(function(){
+    Route::get('/' , [MedicalRecords::class  , 'index']);
+    Route::get('/trashed' , [MedicalRecords::class , 'trashed']);
+    Route::get('/{id}' , [MedicalRecords::class , 'show']);
+    Route::delete('/{id}' , [MedicalRecords::class , 'delete']);
+    Route::post('/{id}' , [MedicalRecords::class , 'restore']);
+    Route::delete('/{id}' , [MedicalRecords::class , 'forceDelete']);
+});
 
 Route::prefix('/request')->group(function(){
     Route::get('/', [RequesterController::class , 'getAllRequesters']);

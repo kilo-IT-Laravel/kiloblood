@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('documentation_files', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('blood_request_donor_id');
+            $table->unsignedBigInteger('blood_request_donor_id')->nullable();
             $table->string('file_path');
             $table->string('file_type');
             $table->text('description')->nullable();
