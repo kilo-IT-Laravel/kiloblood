@@ -117,4 +117,8 @@ class User extends Authenticatable
             ->where('blood_request_id', $requestId)
             ->exists();
     }
+
+    public function readedat(){
+        return $this->hasMany(ReadedAt::class);
+    }
 }

@@ -41,5 +41,5 @@ Route::prefix('requests')->group(function(){
 
 Route::prefix('notifications')->group(function(){
     Route::get('/', [Notification::class , 'index']);
-    Route::get('/{id}', [Notification::class , 'markAsRead']);
+    Route::post('/{id}', [Notification::class , 'markAsRead']);
 });

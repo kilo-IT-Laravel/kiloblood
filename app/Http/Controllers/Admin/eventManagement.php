@@ -48,7 +48,7 @@ class EventManagement extends Koobeni
 
             if($event->is_active){
                 Notification::create([
-                    'user_id' => null, 
+                    'status' => 'event',
                     'message' => "New event: {$event->title} at {$event->location}"
                 ]);
             }

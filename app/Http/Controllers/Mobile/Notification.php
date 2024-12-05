@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mobile;
 
 use App\Koobeni;
 use App\Models\Notification as ModelsNotification;
+use App\Models\ReadedAt;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +19,7 @@ class Notification extends Koobeni
                 'select' => [
                     'id',
                     'message',
-                    'read_at',
+                    'status',
                     'created_at'
                 ],
                 'where' => function ($query) {
@@ -37,8 +38,11 @@ class Notification extends Koobeni
     public function markAsRead(int $id)
     {
         try {
-            $notification = ModelsNotification::findOrFail($id);
-            $notification->update(['read_at' => now()]);
+            ReadedAt::create([
+                'read_at' => now(),
+                'user_id' => Auth::id(),
+                'notification_id' => $id
+            ]);
             return $this->dataResponse(null, 'Marked as read');
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);

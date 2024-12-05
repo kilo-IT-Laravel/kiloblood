@@ -148,7 +148,6 @@ class BloodRequestController extends Koobeni
                 'blood_amount' => 'required|integer|min:1',
                 'medical_records' => 'required|string',
                 'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248',
-                'url' => 'required|string'
             ]);
 
             $donor = BloodRequestDonor::create([
@@ -171,9 +170,10 @@ class BloodRequestController extends Koobeni
             }
 
             Notification::create([
+                'status' => 'accept',
                 'user_id' => $request->requester_id,
                 'message' => 'Someone has offered to donate blood for your request',
-                'url' => $this->req->url
+                'reference_id' => $donor->id
             ]);
 
             return $this->dataResponse(null, 'Donation offer sent');
@@ -240,9 +240,10 @@ class BloodRequestController extends Koobeni
             }
 
             Notification::create([
+                'status' => 'confirm',
                 'user_id' => $donor->donor_id,
                 'message' => 'Your recent donation has been successfully processed',
-                'url' => $this->req->url
+                'reference_id' => $request->id 
             ]);
 
             return $this->dataResponse(null, 'Donation completed');
