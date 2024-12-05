@@ -18,7 +18,8 @@ class Event extends Model
         'start_date',
         'end_date',
         'order',
-        'is_active'
+        'is_active',
+        'file_id'
     ];
 
     protected $casts = [
@@ -27,4 +28,8 @@ class Event extends Model
         'is_active' => 'boolean',
         'order' => 'integer'
     ];
+
+    public function file(){
+        return $this->belongsTo(File::class);
+    }
 }

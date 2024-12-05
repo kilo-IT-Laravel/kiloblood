@@ -16,11 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('users')->group(function () {
     Route::get('/', [UserManagment::class , 'index']);
     Route::get('/trash', [UserManagment::class , 'trashUserManagement']);
-    Route::get('/{userId}/edit', [UserManagment::class , 'editUser']);
+    Route::get('/{userId}', [UserManagment::class , 'editUser']);
     Route::put('/{userId}', [UserManagment::class , 'update']);
     Route::delete('/{userId}', [UserManagment::class , 'deleteUser']);
     Route::post('/{userId}/restore', [UserManagment::class , 'restoreUser']);
     Route::delete('/{userId}/permanent', [UserManagment::class , 'permenantDeleteUser']);
+    Route::post('/{userId}/verify', [UserManagment::class , 'verifyUser']);
 });
 
 Route::prefix('analytics')->group(function(){
@@ -45,8 +46,6 @@ Route::prefix('banners')->group(function () {
     Route::post('/{bannerId}/restore', [bannerManagment::class, 'restore']);
     Route::delete('/{bannerId}/force', [bannerManagment::class, 'forceDelete']);
     Route::post('/{bannerId}/toggle-status', [bannerManagment::class, 'toggleStatus']);
-    
-    
 });
 
 
@@ -99,10 +98,10 @@ Route::prefix('/request')->group(function(){
     Route::get('/', [RequesterController::class , 'getAllRequesters']);
     Route::get('/trash' , [RequesterController::class , 'getTrashed']);
     Route::get('/{bloodType}' , [RequesterController::class , 'userRelatedRequest']);
-    Route::get('/requester/{requesterId}' , [RequesterController::class , 'getUserRequestDetails']);
-    Route::delete('/requester/{requesterId}' , [RequesterController::class , 'delete']);
-    Route::post('/requester/{requesterId}/restore' , [RequesterController::class , 'restore']);
-    Route::delete('/requester/{requesterId}/force' , [RequesterController::class , 'forceDelete']);
+    Route::get('/{requesterId}' , [RequesterController::class , 'getUserRequestDetails']);
+    Route::delete('/{requesterId}' , [RequesterController::class , 'delete']);
+    Route::post('/{requesterId}/restore' , [RequesterController::class , 'restore']);
+    Route::delete('/{requesterId}/force' , [RequesterController::class , 'forceDelete']);
 });
 
 Route::prefix('/donors')->group(function(){

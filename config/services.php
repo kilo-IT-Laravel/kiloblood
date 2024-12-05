@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'firebase' => [
+        'credentials' => storage_path('firebase-credentials.json'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

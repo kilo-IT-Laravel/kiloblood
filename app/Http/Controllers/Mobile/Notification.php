@@ -21,9 +21,10 @@ class Notification extends Koobeni
                     'read_at',
                     'created_at'
                 ],
-                'where' => [
-                    ['user_id', '=', Auth::id()]
-                ],
+                'where' => function ($query) {
+                    $query->where('user_id', Auth::id())
+                        ->orWhereNull('user_id');
+                },
                 'limit' => $this->req->perPage,
                 'offset' => $this->req->offset
             ]);

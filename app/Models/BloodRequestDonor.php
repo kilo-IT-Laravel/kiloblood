@@ -18,7 +18,8 @@ class BloodRequestDonor extends Model
         'blood_amount',
         'accepted_at',
         'confirmed_at',
-        'completed_at'
+        'completed_at',
+        'file_id'
     ];
 
     protected $casts = [
@@ -43,7 +44,7 @@ class BloodRequestDonor extends Model
         return $this->hasOne(BloodDonation::class, 'blood_request_donor_id');
     }
 
-    public function documentationFile(){
-        return $this->hasOne(DocumentationFile::class);
+    public function file(){
+        return $this->belongsTo(File::class);
     }
 }

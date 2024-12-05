@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
+use App\Models\Notification;
 use App\Models\User;
 use Exception;
 
@@ -41,7 +42,7 @@ class UserManagment extends Koobeni
             ]);
 
             $user = User::findOrFail($userId);
-            $updateUser = $this->userService->update($user , $data);
+            $updateUser = $this->userService->update($user, $data);
 
             return $this->dataResponse($updateUser);
         } catch (Exception $e) {
@@ -89,6 +90,25 @@ class UserManagment extends Koobeni
             $user = User::withTrashed()->findOrFail($userId);
             $this->userService->forceDelete($user);
             // $this->logService->log(Auth::id(), 'permenant_deleted', User::class, $user->id);
+            return $this->dataResponse(null);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function verifyUser(int $userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+
+            if ($this->userService->isEligibleForTrust($user)) {
+                $user->update(['trusted_at' => now()]);
+
+                Notification::create([
+                    'user_id' => $user->id,
+                    'message' => 'Congratulations! You are now a verified blood donor.'
+                ]);
+            }
             return $this->dataResponse(null);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);

@@ -6,8 +6,14 @@
 
 friday - todos
 
+<<<<<<< HEAD
 5 revamping certain area features
 
 6 mobile shares and social shares
 
 7 security both admin and user
+=======
+5 revamping notification system use it with FMC
+
+6 fix all other tables need reusable file_id
+>>>>>>> 2f9ed43cefcde650b3419da504d87d74b3159b81

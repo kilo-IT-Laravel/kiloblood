@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\Mobile\BannerController;
 use App\Http\Controllers\Mobile\BloodRequestController;
 use App\Http\Controllers\Mobile\EventController;
 use App\Http\Controllers\Mobile\Notification;
 use App\Http\Controllers\Mobile\ShareController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/statistic', [Authentication::class , 'getStats']);
 
 Route::prefix('banners')->group(function () {
     Route::get('/', [BannerController::class , 'index']);
@@ -28,12 +31,12 @@ Route::prefix('requests')->group(function(){
     Route::get('my-blood-request-donors', [BloodRequestController::class, 'viewMyRequestDonors']);
     Route::get('donation-request-report', [BloodRequestController::class, 'requestDonationReport']); 
     Route::get('donation-report', [BloodRequestController::class, 'donationRequestReport']); 
-    Route::post('donate/{requestId}', [BloodRequestController::class, 'donate']);  
+    Route::post('donate/{requestId}/{docId}', [BloodRequestController::class, 'donate']);  
     Route::put('accept-donor/{donorId}', [BloodRequestController::class, 'acceptDonor']); 
     Route::put('cancel-donation/{donorId}', [BloodRequestController::class, 'cancelDonation']); 
+    Route::get('my-blood-donors/{donorId}', [BloodRequestController::class, 'viewMyDonorDetails']); 
     Route::get('blood-requests/{id}', [BloodRequestController::class, 'show']); 
     Route::put('blood-requests/reject/{id}', [BloodRequestController::class, 'rejectRequest']); 
-    Route::get('my-blood-donors/{id}', [BloodRequestController::class, 'viewMyDonorDetails']); 
 });
 
 Route::prefix('notifications')->group(function(){

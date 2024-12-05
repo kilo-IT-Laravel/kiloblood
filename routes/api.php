@@ -19,14 +19,14 @@ Route::post('/login', [Authentication::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [Authentication::class, 'logout']);
     Route::get('/user', [Authentication::class, 'show']);
-    Route::put('/profile', [Authentication::class, 'updateProfile']);
-    Route::put('/password', [Authentication::class , 'updatePassword']);
-    Route::delete('/account', [Authentication::class , 'deleteAccount']);
-
+    Route::put('/profile', [Authentication::class, 'updateProfile']); /// not yet
+    Route::put('/password', [Authentication::class , 'updatePassword']); /// noet yet
+    Route::delete('/account', [Authentication::class , 'deleteAccount']); /// not yet
+    Route::put('/toggle-status', [Authentication::class , 'updateAvailability']);
     // Device management
     Route::get('/devices', [Authentication::class , 'getDeviceHistory']);
-    Route::post('/devices/{id}/logout', [Authentication::class , 'logoutDevice']);
     Route::post('/devices/logout-all', [Authentication::class , 'logoutAllDevices']);
+    Route::post('/devices/{$tokenId}/logout', [Authentication::class , 'logoutDevice']);
 });
 
 Route::prefix('/mobile')->middleware('auth:sanctum')->group(function () {
