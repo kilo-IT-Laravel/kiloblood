@@ -139,6 +139,10 @@ class EventManagement extends BaseService
             ->get();
     }
 
+    public function getEventNotiDetails(){
+        
+    }
+
     private function uploadImage($image)
     {
         return $image->store('events', 'public');

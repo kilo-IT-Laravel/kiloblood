@@ -48,4 +48,28 @@ class Notification extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
+
+    public function viewDetails(int $id){
+        try{
+            $data = ModelsNotification::findOrFail($id);
+
+            switch($data->status){
+                case 'accept':
+                    return $this->requestService->getRequestNotiDefatils();
+                    break;
+                case 'confirm':
+                    return $this->donorService->getDonorNotiDetails();
+                    break;
+                case 'event':
+                    return $this->eventService->getEventNotiDetails();
+                    break;
+                default:
+                    return 'Invalid notification status';
+                    break;
+            }
+
+        }catch(Exception $e){
+            return $this->handleException($e , $this->req);
+        }
+    }
 }
