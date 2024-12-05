@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->enum('status' , ['confirm','accept','event']);
+        Schema::create('readed_ats', function (Blueprint $table) {
+            $table->id();
+            $table->timestamp('read_at')->nullable();
             $table->unsignedBigInteger('user_id');
-            $table->text('message');
-            $table->integer('reference_id')->nullable();
+            $table->unsignedBigInteger('notification_id');
             $table->timestamps();
-            $table->softDeletes();
 
+            $table->foreign('notification_id')->references('id')->on('notifications')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['user_id']);
+            $table->index(['user_id' , 'notification_id']);
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('readed_ats');
     }
 };

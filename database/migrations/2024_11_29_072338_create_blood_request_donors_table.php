@@ -20,6 +20,7 @@ return new class extends Migration
             ])->default('pending');
             $table->text('medical_records')->nullable();
             $table->integer('blood_amount')->nullable();
+            $table->timestamp('expired_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

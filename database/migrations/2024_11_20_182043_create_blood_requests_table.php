@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('requester_id');
             $table->string('blood_type');
             $table->enum('status', ['accepted' , 'rejected'])->nullable();
-            $table->text('message')->nullable();
             $table->integer('quantity');  
             $table->timestamps();
             $table->softDeletes();
