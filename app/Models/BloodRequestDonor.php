@@ -11,22 +11,15 @@ class BloodRequestDonor extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'blood_request_id',
-        'donor_id',
-        'status',
-        'medical_records',
-        'blood_amount',
-        'accepted_at',
-        'confirmed_at',
-        'completed_at',
-        'file_id'
+        'blood_request_id', 
+        'requester_id', 
+        'status', 
+        'quantity', 
+        'is_confirmed'
     ];
 
     protected $casts = [
-        'accepted_at' => 'datetime',
-        'confirmed_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'blood_amount' => 'integer'
+        'quantity' => 'integer'
     ];
 
     public function bloodRequest()
@@ -36,15 +29,6 @@ class BloodRequestDonor extends Model
 
     public function donor()
     {
-        return $this->belongsTo(User::class, 'donor_id');
-    }
-
-    public function donation()
-    {
-        return $this->hasOne(BloodDonation::class, 'blood_request_donor_id');
-    }
-
-    public function file(){
-        return $this->belongsTo(File::class);
+        return $this->belongsTo(User::class, 'requester_id');
     }
 }

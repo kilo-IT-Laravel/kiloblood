@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Event;
+use App\Models\Notification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class EventManagement extends BaseService
@@ -30,7 +32,7 @@ class EventManagement extends BaseService
                 'title',
                 'description',
                 'location',
-                'image',
+                'image_url',
                 'start_date',
                 'end_date',
                 'is_active',
@@ -52,8 +54,8 @@ class EventManagement extends BaseService
 
     public function create(array $data)
     {
-        if ($this->req->hasFile('image')) {
-            $data['image'] = $this->uploadImage($this->req->file('image'));
+        if ($this->req->hasFile('image_url')) {
+            $data['image_url'] = $this->uploadImage($this->req->file('image_url'));
         }
 
         if (!isset($data['order'])) {
@@ -65,9 +67,9 @@ class EventManagement extends BaseService
 
     public function update(Event $event, array $data)
     {
-        if ($this->req->hasFile('image')) {
-            $this->deleteImage($this->req->file('image'));
-            $data['image'] = $this->uploadImage($this->req->file('image'));
+        if ($this->req->hasFile('image_url')) {
+            $this->deleteImage($this->req->file('image_url'));
+            $data['image_url'] = $this->uploadImage($this->req->file('image_url'));
         }
 
         $event->update($data);
@@ -139,19 +141,51 @@ class EventManagement extends BaseService
             ->get();
     }
 
-    public function getEventNotiDetails(){
-        
+    public function getEventNotiDetails($data)
+    {
+        $eventDetails = Event::where('is_active', true)
+            ->select(
+                'id',
+                'title',
+                'description',
+                'location',
+                'start_date',
+                'end_date',
+                'is_active'
+            )
+            ->latest()
+            ->first();
+
+        return [
+            'notification' => [
+                'id' => $data->id,
+                'message' => $data->message,
+                'time' => $data->created_at->diffForHumans(),
+                'status' => $data->status
+            ],
+            'event_details' => [
+                'title' => $eventDetails->title,
+                'description' => $eventDetails->description,
+                'location' => $eventDetails->location,
+                'date' => [
+                    'start' => Carbon::parse($eventDetails->start_date)->format('Y-m-d H:i'),
+                    'end' => Carbon::parse($eventDetails->end_date)->format('Y-m-d H:i'),
+                    'is_active' => $eventDetails->is_active,
+                    'is_expired' => Carbon::parse($eventDetails->end_date)->isPast()
+                ]
+            ]
+        ];
     }
 
     private function uploadImage($image)
     {
-        return $image->store('events', 'public');
+        return $image->store('events', 's3');
     }
 
     private function deleteImage($image)
     {
         if ($image) {
-            Storage::disk('public')->delete($image);
+            Storage::disk('s3')->delete($image);
         }
     }
 

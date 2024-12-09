@@ -13,7 +13,7 @@ class ShareController extends Koobeni
     public function index()
     {
         try {
-            $shares = Share::where('is_active', true)
+            $shares = Share::where('is_active', true)->select('title' , 'message' , 'image_url' , 'is_active' , 'language' , 'order')
                 ->where('language', $this->req->language ?? 'en')
                 ->get();
 

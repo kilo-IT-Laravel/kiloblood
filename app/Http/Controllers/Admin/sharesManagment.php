@@ -126,7 +126,7 @@ class sharesManagment extends Koobeni
         try {
             $this->req->validate([
                 'ids' => 'required|array',
-                'ids.*' => 'exists:banners,id'
+                'ids.*' => 'exists:shares,id'
             ]);
 
             $this->shareService->bulkRestore($this->req->ids);
@@ -142,7 +142,7 @@ class sharesManagment extends Koobeni
         try {
             $this->req->validate([
                 'ids' => 'required|array',
-                'ids.*' => 'exists:banners,id'
+                'ids.*' => 'exists:shares,id'
             ]);
 
             $this->shareService->bulkForceDelete($this->req->ids);

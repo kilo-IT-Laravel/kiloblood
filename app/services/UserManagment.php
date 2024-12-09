@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BloodRequestDonor;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserManagment extends BaseService
@@ -22,10 +23,10 @@ class UserManagment extends BaseService
             'select' => [
                 'id',
                 'name',
+                'avatar',
                 'phone_number',
                 'blood_type',
                 'location',
-                'image',
                 'available_for_donation',
                 'created_at'
             ],
@@ -47,9 +48,13 @@ class UserManagment extends BaseService
 
     public function update(User $user, array $data)
     {
-        if ($this->req->hasFile('image')) {
+        if ($this->req->hasFile('avatar')) {
             $this->deleteImage($user->image);
-            $data['image'] = $this->uploadImage($this->req->file('image'));
+            $data['avatar'] = $this->uploadImage($this->req->file('avatar'));
+        }
+
+        if (isset($data['password']) && $data['password'] != null) {
+            $data['password'] = Hash::make($data['password']);
         }
 
         $user->update($data);
@@ -98,13 +103,13 @@ class UserManagment extends BaseService
 
     private function uploadImage($image)
     {
-        return $image->store('users', 'public');
+        return $image->store('users', 's3');
     }
 
     private function deleteImage($image)
     {
         if ($image) {
-            Storage::disk('public')->delete($image);
+            Storage::disk('s3')->delete($image);
         }
     }
 }

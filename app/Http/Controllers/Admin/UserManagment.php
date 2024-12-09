@@ -38,7 +38,9 @@ class UserManagment extends Koobeni
                 'phone_number' => 'nullable|string|unique:users,phone_number,' . $userId,
                 'blood_type' => 'nullable|string',
                 'location' => 'nullable|string',
-                'available_for_donation' => 'boolean'
+                'available_for_donation' => 'boolean',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'password' => 'nullable|string|confirmed'
             ]);
 
             $user = User::findOrFail($userId);

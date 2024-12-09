@@ -13,17 +13,26 @@ return new class extends Migration
     {
         Schema::create('blood_requests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('requester_id');
+            $table->unsignedBigInteger('donor_id');
+            $table->enum('status', [
+                'pending',
+                'completed',
+                'cancelled'
+            ])->default('pending');
             $table->string('blood_type');
-            $table->enum('status', ['accepted' , 'rejected'])->nullable();
-            $table->integer('quantity');  
+            $table->string('name');
+            $table->string('location');
+            $table->integer('quantity')->nullable();
+            $table->text('note')->nullable();
+            $table->timestamp('expired_at')->nullable();
+            $table->string('medical_records')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->index(['donor_id', 'status' , 'created_at']);
+            $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unique(['donor_id' , 'status']);
             
-            $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['requester_id', 'status']);
         });
-        
     }
 
     /**

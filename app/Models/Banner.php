@@ -11,21 +11,16 @@ class Banner extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'image',
         'title',
         'description',
         'link',
         'order',
         'is_active',
-        'file_id'
+        'image'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order' => 'integer'
     ];
-
-    public function file(){
-        return $this->belongsTo(File::class);
-    }
 }

@@ -13,7 +13,7 @@ class Notification extends Koobeni
     public function index()
     {
         try {
-            $data = $this->findAll->allWithLimit([
+            $data = $this->findAll->allWithPagination([
                 'model' => ModelsNotification::class,
                 'sort' => 'latest',
                 'select' => [
@@ -26,10 +26,14 @@ class Notification extends Koobeni
                     $query->where('user_id', Auth::id())
                         ->orWhereNull('user_id');
                 },
-                'limit' => $this->req->perPage,
-                'offset' => $this->req->offset
+                'whereDoesntHave' => [
+                    'readedat' => function ($query) {
+                        $query->where('user_id', Auth::id());
+                    }
+                ],
+                'perPage' => $this->req->perPage
             ]);
-            return $this->dataResponse($data);
+            return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -49,27 +53,26 @@ class Notification extends Koobeni
         }
     }
 
-    public function viewDetails(int $id){
-        try{
+    public function viewDetails(int $id)
+    {
+        try {
             $data = ModelsNotification::findOrFail($id);
 
-            switch($data->status){
-                case 'accept':
-                    return $this->requestService->getRequestNotiDefatils();
-                    break;
+            switch ($data->status) {
                 case 'confirm':
-                    return $this->donorService->getDonorNotiDetails();
+                    $confirm = $this->donorService->getDonorNotiDetails($data);
+                    return $this->dataResponse($confirm);
                     break;
                 case 'event':
-                    return $this->eventService->getEventNotiDetails();
+                    $event = $this->eventService->getEventNotiDetails($data);
+                    return $this->dataResponse($event);
                     break;
                 default:
                     return 'Invalid notification status';
                     break;
             }
-
-        }catch(Exception $e){
-            return $this->handleException($e , $this->req);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
         }
     }
 }

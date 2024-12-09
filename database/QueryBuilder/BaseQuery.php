@@ -4,6 +4,7 @@ namespace Database\QueryBuilder;
 
 use Closure;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Storage\utils\ParamExtractor;
 
 class BaseQuery
@@ -77,7 +78,10 @@ class BaseQuery
         $search = [],
         $onlyTrash = false,
         $rawSelects = [],
-        $groupBy = null
+        $groupBy = null,
+        $whereDoesntHave = null,
+        $whereHas = null,
+        $whereIn = null
     ) {
         $query = $Data::query();
 
@@ -96,7 +100,7 @@ class BaseQuery
                     $withArray[] = $relation;
                 }
             }
-
+            Log::info($withArray);
             $query->with($withArray);
         }
 
@@ -131,6 +135,24 @@ class BaseQuery
                     }
                 }
             });
+        }
+
+        if ($whereIn) {
+            foreach ($whereIn as $field => $values) {
+                $query->whereIn($field, $values);
+            }
+        }
+
+        if ($whereHas) {
+            foreach ($whereHas as $relation => $callback) {
+                $query->whereHas($relation, $callback);
+            }
+        }
+
+        if ($whereDoesntHave) {
+            foreach ($whereDoesntHave as $relation => $callback) {
+                $query->whereDoesntHave($relation, $callback);
+            }
         }
 
         if ($aggregate) {

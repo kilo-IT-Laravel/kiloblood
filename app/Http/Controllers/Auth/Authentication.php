@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Koobeni;
 use App\Models\BloodRequest;
 use App\Models\BloodRequestDonor;
-use App\Models\File;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class Authentication extends Koobeni
 {
@@ -22,8 +23,6 @@ class Authentication extends Koobeni
                 'password' => 'required|string|confirmed',
                 'blood_type' => 'required|string',
                 'location' => 'required|string',
-                'avatar' => 'required|file|mimes:jpeg,png,jpg|max:2048',
-                'medical_file' => 'required|file|mimes:pdf,doc,docx|max:10248',
                 'role' => 'required|in:user,doctor',
                 'description' => 'nullable|string'
             ]);
@@ -32,18 +31,6 @@ class Authentication extends Koobeni
                 'model' => User::class,
                 'credentials' => $cred
             ]);
-
-            if($this->req->hasFile('avatar')){
-                $file = $this->fileService->uploading('avatar' , 'pf_img');
-                $user->file_id = $file->id;
-            }
-
-            if ($this->req->hasFile('medical_file')) {
-                $file =$this->fileService->uploading('medical_file', 'medical_records');
-                $user->medical_file_id = $file->id;
-            }
-
-            $user->save();
 
             return $this->dataResponse($user);
         } catch (Exception $e) {
@@ -155,11 +142,11 @@ class Authentication extends Koobeni
         try {
             $bloodType = $this->req->user()->blood_type;
 
-            $donationCount = BloodRequestDonor::where('donor_id', Auth::id())
+            $donationCount = BloodRequest::where('donor_id', Auth::id())
                 ->where('status', 'completed')
                 ->count();
 
-            $requestCount = BloodRequest::where('requester_id', Auth::id())
+            $requestCount = BloodRequest::where('donor_id', Auth::id())
                 ->count();
 
             return $this->dataResponse([
@@ -180,6 +167,62 @@ class Authentication extends Koobeni
             ]);
 
             return $this->dataResponse(null, 'Availability updated');
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function updateProfile()
+    {
+        try {
+            $validate = $this->req->validate([
+                'name' => 'nullable|string',
+                'phone_number' => 'nullable|string|unique:users,phone_number',
+                'location' => 'nullable|string',
+                'blood_type' => 'nullable|string',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            ]);
+
+            if($this->req->hasFile('avatar')){
+                Storage::disk('s3')->delete($this->req->avatar);
+                $validate['avatar'] = $this->req->file('avatar')->store('avatars' , 's3');
+            }
+
+            $this->req->user()->update($validate);
+
+            return $this->dataResponse(null);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function updatePassword()
+    {
+        try {
+            $this->req->validate([
+                'old_password' => 'required|string',
+                'new_password' => 'required|string|confirmed'
+            ]);
+
+            if (!Hash::check($this->req->old_password, $this->req->user()->password)) {
+                return $this->dataResponse(null, 'Old password is incorrect');
+            }
+
+            $this->req->user()->update([
+                'password' => Hash::make($this->req->new_password)
+            ]);
+
+            return $this->dataResponse(null);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function deleteAccount()
+    {
+        try {
+            $this->req->user()->delete();
+            return $this->dataResponse(null, 'Account deleted');
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

@@ -13,24 +13,17 @@ return new class extends Migration
     {
         Schema::create('blood_request_donors', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_confirmed')->default(false);
             $table->unsignedBigInteger('blood_request_id');
-            $table->unsignedBigInteger('donor_id');
-            $table->enum('status', [
-                'pending', 'completed', 'cancelled'
-            ])->default('pending');
-            $table->text('medical_records')->nullable();
-            $table->integer('blood_amount')->nullable();
-            $table->timestamp('expired_at')->nullable();
-            $table->unsignedBigInteger('file_id')->nullable();
+            $table->unsignedBigInteger('requester_id');
+            $table->enum('status', ['accepted', 'rejected'])->nullable();
+            $table->integer('quantity');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('file_id')->references('id')->on('files')->onDelete('set null');
+            $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('blood_request_id')->references('id')->on('blood_requests')->onDelete('cascade');
-            $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unique(['blood_request_id', 'donor_id']);
-            $table->index(['blood_request_id', 'status']);
-            $table->index(['donor_id', 'status']);
+            $table->index(['requester_id', 'status' , 'blood_request_id']);
         });
     }
 

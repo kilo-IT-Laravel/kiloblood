@@ -20,15 +20,16 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'password',
-        'phone_number',
-        'blood_type',
-        'location',
-        'available_for_donation',
-        'image',
-        'role',
-        'file_id'
+        'name', 
+        'phone_number', 
+        'blood_type', 
+        'role', 
+        'phonenumber_verified_at', 
+        'available_for_donation', 
+        'avatar', 
+        'trusted_at', 
+        'location', 
+        'password'
     ];
 
     /**
@@ -68,27 +69,17 @@ class User extends Authenticatable
 
     public function bloodRequests()
     {
-        return $this->hasMany(BloodRequest::class, 'requester_id');
+        return $this->hasMany(BloodRequest::class, 'donor_id');
     }
 
     public function donorResponses()
     {
-        return $this->hasMany(BloodRequestDonor::class, 'donor_id');
-    }
-
-    public function donations()
-    {
-        return $this->hasMany(BloodDonation::class, 'donor_id');
+        return $this->hasMany(BloodRequestDonor::class, 'requester_id');
     }
 
     public function notification()
     {
         return $this->hasMany(Notification::class);
-    }
-
-    public function hiddenRequests()
-    {
-        return $this->hasMany(HiddenBloodRequest::class);
     }
 
     public function socialShares()
@@ -99,23 +90,6 @@ class User extends Authenticatable
     public function testtoken()
     {
         return $this->hasMany(TestToken::class);
-    }
-
-    public function file()
-    {
-        return $this->belongsTo(File::class, 'file_id');
-    }
-
-    public function medicalFile()
-    {
-        return $this->belongsTo(File::class, 'medical_file_id');
-    }
-
-    public function hasHiddenRequest($requestId)
-    {
-        return $this->hiddenRequests()
-            ->where('blood_request_id', $requestId)
-            ->exists();
     }
 
     public function readedat(){

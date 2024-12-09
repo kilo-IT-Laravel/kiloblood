@@ -40,7 +40,7 @@ class ShareManagement extends BaseService
     public function create(array $data)
     {
         if ($this->req->hasFile('image_url')) {
-            $data['image'] = $this->uploadImage($this->req->file('image_url'));
+            $data['image_url'] = $this->uploadImage($this->req->file('image_url'));
         }
 
         return Share::create($data);
@@ -105,13 +105,13 @@ class ShareManagement extends BaseService
 
     private function uploadImage($image)
     {
-        return $image->store('shares', 'public');
+        return $image->store('shares', 's3');
     }
 
     private function deleteImage($image)
     {
         if ($image) {
-            Storage::disk('public')->delete($image);
+            Storage::disk('s3')->delete($image);
         }
     }
 

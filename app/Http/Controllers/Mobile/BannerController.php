@@ -12,6 +12,7 @@ class BannerController extends Koobeni
     {
         try{
             $banners = Banner::where('is_active', true)
+            ->select('image','title','description','link' , 'order' , 'is_active')
             ->orderBy('order', 'asc')
             ->get();
 

@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\analytics;
 use App\Http\Controllers\Admin\bannerManagment;
 use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\EventManagement;
-use App\Http\Controllers\Admin\MedicalRecords;
 use App\Http\Controllers\Admin\RequesterController;
 use App\Http\Controllers\Admin\UserManagment;
 use App\Http\Controllers\Admin\sharesManagment;
@@ -20,17 +19,13 @@ Route::prefix('users')->group(function () {
     Route::put('/{userId}', [UserManagment::class , 'update']);
     Route::delete('/{userId}', [UserManagment::class , 'deleteUser']);
     Route::post('/{userId}/restore', [UserManagment::class , 'restoreUser']);
-    Route::delete('/{userId}/permanent', [UserManagment::class , 'permenantDeleteUser']);
-    Route::post('/{userId}/verify', [UserManagment::class , 'verifyUser']);
+    Route::delete('/{userId}/force', [UserManagment::class , 'permenantDeleteUser']);
+    Route::put('/{userId}/verify', [UserManagment::class , 'verifyUser']);
 });
 
 Route::prefix('analytics')->group(function(){
     Route::get('/' , [analytics::class , 'index']);
     Route::get('/chart' , [analytics::class , 'chart']);
-});
-
-Route::prefix('notifications')->group(function(){
-    Route::get('/' , [Notifications::class , 'index']);
 });
 
 Route::prefix('banners')->group(function () {
@@ -50,8 +45,8 @@ Route::prefix('banners')->group(function () {
 
 
 Route::prefix('events')->group(function () {
-    Route::get('/', [EventManagement::class, 'index']);
-    Route::post('/', [EventManagement::class, 'store']);
+    Route::get('/', [EventManagement::class, 'allData']);
+    Route::post('/', [EventManagement::class, 'storing']);
     Route::get('/trash', [EventManagement::class, 'getTrashed']);
     Route::post('/reorder', [EventManagement::class, 'reorder']);
     Route::post('/bulk-restore', [EventManagement::class, 'bulkRestore']);
@@ -85,20 +80,11 @@ Route::prefix('social-shares')->group(function () {
     Route::delete('/bulk-delete', [socialSharesManagment::class, 'destroy']);
 });
 
-Route::prefix('medical-records')->group(function(){
-    Route::get('/' , [MedicalRecords::class  , 'index']);
-    Route::get('/trashed' , [MedicalRecords::class , 'trashed']);
-    Route::get('/{id}' , [MedicalRecords::class , 'show']);
-    Route::delete('/{id}' , [MedicalRecords::class , 'delete']);
-    Route::post('/{id}' , [MedicalRecords::class , 'restore']);
-    Route::delete('/{id}' , [MedicalRecords::class , 'forceDelete']);
-});
-
 Route::prefix('/request')->group(function(){
     Route::get('/', [RequesterController::class , 'getAllRequesters']);
     Route::get('/trash' , [RequesterController::class , 'getTrashed']);
     Route::get('/{bloodType}' , [RequesterController::class , 'userRelatedRequest']);
-    Route::get('/{requesterId}' , [RequesterController::class , 'getUserRequestDetails']);
+    Route::get('/{requesterId}/details' , [RequesterController::class , 'getUserRequestDetails']);
     Route::delete('/{requesterId}' , [RequesterController::class , 'delete']);
     Route::post('/{requesterId}/restore' , [RequesterController::class , 'restore']);
     Route::delete('/{requesterId}/force' , [RequesterController::class , 'forceDelete']);
@@ -111,4 +97,8 @@ Route::prefix('/donors')->group(function(){
     Route::delete('/{donorId}' , [DonorController::class , 'delete']);
     Route::post('/{donorId}/restore' , [DonorController::class , 'restore']);
     Route::delete('/{donorId}/force' , [DonorController::class , 'forceDelete']);
+});
+
+Route::prefix('notifications')->group(function(){
+    Route::get('/' , [Notifications::class , 'index']);
 });

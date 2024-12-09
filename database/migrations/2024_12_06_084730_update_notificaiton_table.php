@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropIndex(['user_id']);
             $table->unsignedBigInteger('user_id')->nullable()->change();
-            $table->string('url')->nullable()->after('message');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->index(['user_id']);
         });
     }
 
@@ -23,8 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropIndex(['user_id']);
             $table->unsignedBigInteger('user_id')->nullable(false)->change();
-            $table->dropColumn('url');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index(['user_id']);
         });
     }
 };

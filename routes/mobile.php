@@ -26,21 +26,19 @@ Route::prefix('shares')->group(function () {
 });
 
 Route::prefix('requests')->group(function(){
-    Route::get('blood-requests', [BloodRequestController::class, 'index']);
-    Route::post('blood-requests', [BloodRequestController::class, 'store']);  
-    Route::get('my-blood-request-donors', [BloodRequestController::class, 'viewMyRequestDonors']);
-    Route::get('donation-request-report', [BloodRequestController::class, 'requestDonationReport']); 
-    Route::get('donation-report', [BloodRequestController::class, 'donationRequestReport']); 
-    Route::post('donate/{requestId}/{docId}', [BloodRequestController::class, 'donate']);  
-    Route::put('accept-donor/{donorId}', [BloodRequestController::class, 'acceptDonor']); 
-    Route::put('cancel-donation/{donorId}', [BloodRequestController::class, 'cancelDonation']); 
-    Route::get('my-blood-donors/{donorId}', [BloodRequestController::class, 'viewMyDonorDetails']); 
-    Route::get('blood-requests/{id}', [BloodRequestController::class, 'show']); 
-    Route::put('blood-requests/reject/{id}', [BloodRequestController::class, 'rejectRequest']); 
-});
+    Route::get('/', [BloodRequestController::class, 'index']);
+    Route::post('/', [BloodRequestController::class, 'store']);  
+    Route::get('/my-request', [BloodRequestController::class, 'myRequests']);
+    Route::post('/donate/{reqId}',[BloodRequestController::class , 'donate']); /// this one logic is a bit tricky
+    Route::post('/cancel/{reqId}',[BloodRequestController::class , 'cancel']);
+    Route::post('/confirm/{donorId}',[BloodRequestController::class , 'confirmDonor']); /// this one too
+    Route::get('/report/my-donation' , [BloodRequestController::class , 'myDonationHistory']);
+    Route::get('/report/my-request' , [BloodRequestController::class , 'myRequestHistory']);
+    Route::get('/search-donor' , [BloodRequestController::class , 'searchForDonor']);
+}); 
 
 Route::prefix('notifications')->group(function(){
     Route::get('/', [Notification::class , 'index']);
     Route::get('/{id}' , [Notification::class , 'viewDetails']);
     Route::post('/{id}', [Notification::class , 'markAsRead']);
-});
+}); //// not yet

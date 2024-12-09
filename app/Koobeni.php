@@ -7,8 +7,7 @@ use App\Services\AuditLog;
 use App\Services\BannersManagment;
 use App\Services\DonorManagement;
 use App\Services\EventManagement;
-use App\Services\FIleService;
-use App\Services\RequestManagement;
+use App\Services\NotiService;
 use App\Services\ShareManagement;
 use App\Services\UserManagment;
 use Storage\utils\CustomResponse;
@@ -46,9 +45,8 @@ class Koobeni extends BaseController
     protected $eventService;
     protected $shareService;
     protected $userService;
-    protected $fileService;
     protected $donorService;
-    protected $requestService;
+    protected $notiService;
 
     public function __construct(HookService $hookService)
     {
@@ -62,9 +60,8 @@ class Koobeni extends BaseController
         $this->eventService = new EventManagement();
         $this->shareService = new ShareManagement();
         $this->userService = new UserManagment();
-        $this->fileService = new FIleService();
-        $this->requestService = new RequestManagement();
         $this->donorService = new DonorManagement();
+        $this->notiService = new NotiService();
     }
 
     // public function getCollection()

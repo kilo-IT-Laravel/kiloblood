@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Koobeni;
 use App\Models\Event;
-use App\Models\Notification;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class EventManagement extends Koobeni
 {
-    public function index()
+    public function allData()
     {
         try {
             $events = $this->eventService->getAllEvents(false);
@@ -30,14 +29,14 @@ class EventManagement extends Koobeni
         }
     }
 
-    public function store()
+    public function storing()
     {
         try {
             $data = $this->req->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'location' => 'required|string|max:255',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'start_date' => 'required|date|after:now',
                 'end_date' => 'required|date|after:start_date',
                 'order' => 'nullable|integer|min:0',
@@ -47,10 +46,7 @@ class EventManagement extends Koobeni
             $event = $this->eventService->create($data);
 
             if($event->is_active){
-                Notification::create([
-                    'status' => 'event',
-                    'message' => "New event: {$event->title} at {$event->location}"
-                ]);
+                $this->notiService->useNoti(null , 'event' , "New event: {$event->title} at {$event->location}");
             }
 
             return $this->dataResponse($event);
@@ -66,7 +62,7 @@ class EventManagement extends Koobeni
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
                 'location' => 'nullable|string|max:255',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'start_date' => 'nullable|date',
                 'end_date' => 'nullable|date|after:start_date',
                 'order' => 'nullable|integer|min:0',
@@ -75,6 +71,11 @@ class EventManagement extends Koobeni
 
             $event = Event::findOrFail($eventId);
             $updatedEvent = $this->eventService->update($event, $validated);
+
+            if($updatedEvent->is_active){
+                $this->notiService->useNoti(null , 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
+            }
+
             return $this->dataResponse($updatedEvent);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -132,6 +133,11 @@ class EventManagement extends Koobeni
         try {
             $event = Event::findOrFail($eventId);
             $updatedEvent = $this->eventService->toggleStatus($event);
+
+            if($updatedEvent->is_active){
+                $this->notiService->useNoti(null , 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
+            }
+
             return $this->dataResponse(
                 $updatedEvent,
                 $updatedEvent->is_active ? 'Event activated' : 'Event deactivated'

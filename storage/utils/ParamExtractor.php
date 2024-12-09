@@ -75,7 +75,10 @@ class ParamExtractor
             'dateRange' => $params['dateRange'] ?? null,
             'search' => $params['search'] ?? [],
             'rawSelects' => $params['rawSelects'] ?? [],
-            'groupBy' => $params['groupBy'] ?? null
+            'groupBy' => $params['groupBy'] ?? null,
+            'whereDoesntHave' => $params['whereDoesntHave'] ?? null,
+            'whereHas' => $params['whereHas'] ?? null,
+            'whereIn' => $params['whereIn'] ?? null
         ];
     }
 

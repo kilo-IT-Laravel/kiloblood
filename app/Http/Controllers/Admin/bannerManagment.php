@@ -44,6 +44,7 @@ class bannerManagment extends Koobeni
         }
     }
 
+
     public function update(int $bannerId)
     {
         try {

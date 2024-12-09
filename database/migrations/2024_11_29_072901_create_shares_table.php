@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('image_url')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('language', ['en', 'kh', 'ch'])->default('en');
+            $table->integer('order')->default(0);
             $table->timestamps();
             $table->softDeletes();
             $table->index(['language', 'title']);

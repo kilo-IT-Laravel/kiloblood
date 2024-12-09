@@ -49,6 +49,7 @@ class BannersManagment extends BaseService
         return Banner::create($data);
     }
 
+
     public function update(Banner $banner, array $data)
     {
         if ($this->req->hasFile('image')) {
@@ -59,6 +60,7 @@ class BannersManagment extends BaseService
         $banner->update($data);
         return $banner->fresh();
     }
+
 
     public function delete(Banner $banner)
     {
@@ -72,6 +74,7 @@ class BannersManagment extends BaseService
         $banner->forceDelete();
         return true;
     }
+
 
     public function restore(Banner $banner)
     {
@@ -100,7 +103,7 @@ class BannersManagment extends BaseService
 
         foreach ($banners as $banner) {
             if ($banner->image) {
-                Storage::disk('public')->delete($banner->image);
+                Storage::disk('s3')->delete($banner->image);
             }
         }
 
@@ -120,15 +123,16 @@ class BannersManagment extends BaseService
 
     private function uploadImage($image)
     {
-        return $image->store('banners', 'public');
+        return $image->store('banners', 's3');
     }
 
     private function deleteImage($image)
     {
         if ($image) {
-            Storage::disk('public')->delete($image);
+            Storage::disk('s3')->delete($image);
         }
     }
+
 
     private function getNextOrder()
     {

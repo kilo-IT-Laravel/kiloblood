@@ -18,7 +18,10 @@ class FindAll extends BaseQuery
             $params['search'],
             $params['trash'],
             $params['rawSelects'],
-            $params['groupBy']
+            $params['groupBy'],
+            $params['whereDoesntHave'],
+            $params['whereHas'],
+            $params['whereIn']
         );
 
         return $query->paginate($params['perPage']);
@@ -39,7 +42,10 @@ class FindAll extends BaseQuery
             $params['search'],
             $params['trash'],
             $params['rawSelects'],
-            $params['groupBy']
+            $params['groupBy'],
+            $params['whereDoesntHave'],
+            $params['whereHas'],
+            $params['whereIn']
         );
 
         return $query->skip($params['offset'])->take($params['limit'])->get();
@@ -60,7 +66,10 @@ class FindAll extends BaseQuery
             $params['search'],
             $params['trash'],
             $params['rawSelects'],
-            $params['groupBy']
+            $params['groupBy'],
+            $params['whereDoesntHave'],
+            $params['whereHas'],
+            $params['whereIn']
         );
 
         return $query->get();
@@ -81,7 +90,10 @@ class FindAll extends BaseQuery
             $params['search'],
             $params['trash'],
             $params['rawSelects'],
-            $params['groupBy']
+            $params['groupBy'],
+            $params['whereDoesntHave'],
+            $params['whereHas'],
+            $params['whereIn']
         );
 
         return $query->get();

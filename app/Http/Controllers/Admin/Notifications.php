@@ -11,12 +11,12 @@ class Notifications extends Koobeni
     public function index()
     {
         try {
-            $data = $this->findAll->allWithLimit([
+            $data = $this->findAll->allWithPagination([
                 'model' => BloodRequest::class,
                 'sort' => 'latest',
                 'select' => [
                     'id',
-                    'requester_id',
+                    'donor_id',
                     'blood_type',
                     'status',
                     'created_at'
@@ -25,20 +25,19 @@ class Notifications extends Koobeni
                     ['created_at', '>=', now()->subDays(7)]
                 ],
                 'relations' => ['requester:id,name'],
-                'limit' => $this->req->limit,
-                'offset' => $this->req->offset
+                'perPage' => $this->req->perPage,
             ]);
 
-            $mappedData = $data->map(function ($request) {
+            $data->getCollection()->transform(function ($item) {
                 return [
-                    'id' => $request->id,
-                    'message' => "{$request->requester->name} has requested {$request->blood_type} blood",
-                    'status' => $request->status,
-                    'created_at' => $request->created_at
+                    'id' => $item->id,
+                    'message' => "{$item->requester->name} has requested {$item->blood_type} blood",
+                    'status' => $item->status,
+                    'created_at' => $item->created_at
                 ];
             });
 
-            return $this->dataResponse($mappedData);
+            return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

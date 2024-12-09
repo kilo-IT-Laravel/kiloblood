@@ -22,8 +22,8 @@ class RequesterController extends Koobeni
                     'COUNT(*) as user_count',
                     'COUNT(CASE WHEN available_for_donation = true THEN 1 END) as available_donors',
                     '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type) as request_count',
-                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "accepted") as accepted_count',
-                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "rejected") as rejected_count'
+                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "completed") as completed_count',
+                    '(SELECT COUNT(*) FROM blood_requests WHERE blood_requests.blood_type = users.blood_type AND status = "pending") as pending_count'
                 ],
                 'groupBy' => 'blood_type',
                 'perPage' => $this->req->perPage,
@@ -45,7 +45,7 @@ class RequesterController extends Koobeni
                 'model' => BloodRequest::class,
                 'sort' => 'latest',
                 'relations' => [
-                    'requester:id,name,image',
+                    'requester:id,name,avatar',
                 ],
                 'perPage' => $this->req->perPage,
                 'where' => [
@@ -77,9 +77,9 @@ class RequesterController extends Koobeni
         try {
             $data = BloodRequest::findOrFail($requesterId)
                 ->load([
-                    'requester:id,name,phone_number,blood_type,location,image',
-                    'donors:id,blood_request_id,donor_id,status,medical_records,blood_amount',
-                    'donors.donor:id,name,phone_number,blood_type,location,image'
+                    'requester:id,name,phone_number,blood_type,location,avatar',
+                    'donors:id,blood_request_id,donor_id,status,blood_amount',
+                    'donors.donor:id,name,phone_number,blood_type,location,avatar'
                 ]);
             return $this->dataResponse($data);
         } catch (Exception $e) {
@@ -106,7 +106,7 @@ class RequesterController extends Koobeni
                 'model' => BloodRequest::class,
                 'sort' => 'latest',
                 'relations' => [
-                    'requester:id,name,image',
+                    'requester:id,name,avatar',
                 ],
                 'perPage' => $this->req->perPage,
                 'trash' => true,
