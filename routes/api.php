@@ -45,36 +45,3 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 
 // Route::post('/postey' , [test::class , 'testBruh1']);
 
-// Route::post('/testing', function () {
-//     // $sid = xxxx;
-//     // $token = xxx;
-//     // $twilio_number = xxxx;
-
-//     // try {
-//     //     // Initialize Twilio client
-//     //     $client = new Client($sid, $token);
-
-//     //     // Send SMS
-//     //     $message = $client->messages->create(
-//     //         '+855715341913', // Replace with the recipient's number
-//     //         [
-//     //             'from' => $twilio_number,
-//     //             'body' => 'Test message from Laravel Twilio!'
-//     //         ]
-//     //     );
-
-//     //     return response()->json([
-//     //         'success' => true,
-//     //         'message' => 'SMS sent successfully!',
-//     //         'message_sid' => $message->sid
-//     //     ]);
-//     // } catch (\Exception $e) {
-//     //     return response()->json([
-//     //         'success' => false,
-//     //         'message' => 'Error sending SMS: ' . $e->getMessage()
-//     //     ], 500);
-//     // }
-//     // $event = Event::findOrFail(4);
-//     // event(new notification($event));
-//     // return response()->json(['data'=>$event]);
-// });
