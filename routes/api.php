@@ -46,9 +46,9 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 // Route::post('/postey' , [test::class , 'testBruh1']);
 
 // Route::post('/testing', function () {
-//     // $sid = 'AC86cce89e2769bd42af6961bd6d8e3ca2';
-//     // $token = '3ae2f23de3a64cb7ba39db876ddfa8cd';
-//     // $twilio_number = '+17752970147';
+//     // $sid = xxxx;
+//     // $token = xxx;
+//     // $twilio_number = xxxx;
 
 //     // try {
 //     //     // Initialize Twilio client
