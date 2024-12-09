@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserManagment;
 use App\Http\Middleware\AuthorizeDoctor;
+use App\Http\Middleware\DonateStatusFalse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         }
         $middleware->alias([
             'doctor' => AuthorizeDoctor::class,
+            'available' => DonateStatusFalse::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

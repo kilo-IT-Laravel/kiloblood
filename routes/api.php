@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\test;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/user', function (Request $request) {
@@ -45,3 +47,25 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 
 // Route::post('/postey' , [test::class , 'testBruh1']);
 
+Route::post('/testing' , function(Request $req){
+    try{
+        $content = $req->content;
+        $subscriptionIds = $req->subscription_ids;
+        $url = $req->url;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic os_v2_app_gvyht3zibfcrjdtq3ohgtzjleg7ie2n7jmpuhf5kgs52tp3dinsnpkva7ry2l4tpkjdlvlgzdpccqmuiidyttbdi5334o4m7hwljuia',
+            'accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ])->post('https://oneSignal.com/api/v1/notifications',[
+            'app_id' => '357079ef-2809-4514-8e70-db8e69e52b21',
+            'include_player_ids' => $subscriptionIds,
+            'contents' => ['en' => $content],
+            'url' => $url
+        ]);
+
+        return response()->json($response);
+    }catch(Exception $e){
+        return response()->json($e);
+    }
+});

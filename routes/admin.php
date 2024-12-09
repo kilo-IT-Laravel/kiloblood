@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\RequesterController;
 use App\Http\Controllers\Admin\UserManagment;
 use App\Http\Controllers\Admin\sharesManagment;
 use App\Http\Controllers\Admin\socialSharesManagment;
-use App\Http\Controllers\Admin\Notifications;
 use Illuminate\Support\Facades\Route;
 
 
@@ -97,8 +96,4 @@ Route::prefix('/donors')->group(function(){
     Route::delete('/{donorId}' , [DonorController::class , 'delete']);
     Route::post('/{donorId}/restore' , [DonorController::class , 'restore']);
     Route::delete('/{donorId}/force' , [DonorController::class , 'forceDelete']);
-});
-
-Route::prefix('notifications')->group(function(){
-    Route::get('/' , [Notifications::class , 'index']);
 });
