@@ -53,7 +53,7 @@ class RequesterController extends Koobeni
                 ],
                 'select' => [
                     'id',
-                    'requester_id',
+                    'donor_id',
                     'quantity',
                     'status',
                 ],
@@ -78,7 +78,7 @@ class RequesterController extends Koobeni
             $data = BloodRequest::findOrFail($requesterId)
                 ->load([
                     'requester:id,name,phone_number,blood_type,location,avatar',
-                    'donors:id,blood_request_id,donor_id,status,blood_amount',
+                    'donors:id,blood_request_id,requester_id,status,quantity',
                     'donors.donor:id,name,phone_number,blood_type,location,avatar'
                 ]);
             return $this->dataResponse($data);
@@ -112,7 +112,7 @@ class RequesterController extends Koobeni
                 'trash' => true,
                 'select' => [
                     'id',
-                    'requester_id',
+                    'donor_id',
                     'quantity',
                     'status',
                 ],

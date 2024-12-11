@@ -16,15 +16,15 @@ class DonorController extends Koobeni
                 'model' => BloodRequestDonor::class,
                 'sort' => 'latest',
                 'relations' => [
-                    'donor:id,name,image,blood_type,location',
+                    'donor:id,name,avatar,blood_type,location',
                     'bloodRequest:id,blood_type,quantity,status,created_at'
                 ],
                 'select' => [
                     'id',
-                    'donor_id',
+                    'requester_id',
                     'blood_request_id',
                     'status',
-                    'blood_amount',
+                    'quantity',
                     'created_at'
                 ],
                 'search' => [
@@ -48,8 +48,8 @@ class DonorController extends Koobeni
     {
         try {
             $donor = BloodRequestDonor::with([
-                'donor:id,name,image,blood_type,location,available_for_donation',
-                'bloodRequest:id,blood_type,quantity,status,message,created_at',
+                'donor:id,name,avatar,blood_type,location,available_for_donation',
+                'bloodRequest:id,blood_type,quantity,status,note,created_at',
                 'bloodRequest.requester:id,name,image'
             ])->findOrFail($donorId);
 
@@ -67,15 +67,15 @@ class DonorController extends Koobeni
                 'trash' => true,
                 'sort' => 'latest',
                 'relations' => [
-                    'donor:id,name,image,blood_type',
+                    'donor:id,name,avatar,blood_type',
                     'bloodRequest:id,blood_type,quantity,status'
                 ],
                 'select' => [
                     'id',
-                    'donor_id',
+                    'requester_id',
                     'blood_request_id',
                     'status',
-                    'blood_amount',
+                    'quantity',
                     'created_at',
                     'deleted_at'
                 ],
