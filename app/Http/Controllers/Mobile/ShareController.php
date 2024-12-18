@@ -13,7 +13,7 @@ class ShareController extends Koobeni
     public function index()
     {
         try {
-            $shares = Share::where('is_active', true)->select('title' , 'message' , 'image_url' , 'is_active' , 'language' , 'order')
+            $shares = Share::where('is_active', true)->select('title' , 'link' , 'message' , 'image_url' , 'is_active' , 'language' , 'order')
                 ->where('language', $this->req->language ?? 'en')
                 ->get();
 
@@ -28,10 +28,12 @@ class ShareController extends Koobeni
         try {
 
             $this->req->validate([
-                'platform' => 'required|string|in:facebook,twitter,telegram,instagram,whatsapp'
+                'platform' => 'required|string|in:facebook,twitter,telegram,instagram,whatsapp',
+                'link' => 'required|string|url'
             ]);
 
             SocialShare::create([
+                'link' => $this->req->link,
                 'user_id' => Auth::id(),
                 'platform' => $this->req->platform
             ]);

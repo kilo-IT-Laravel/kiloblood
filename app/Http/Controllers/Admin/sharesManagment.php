@@ -28,7 +28,8 @@ class sharesManagment extends Koobeni
                 'message' => 'required|string',
                 'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'language' => 'required|in:en,kh,ch',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean',
+                'link' => 'required|string|url'
             ]);
 
             $share = $this->shareService->create($validated);
@@ -47,7 +48,8 @@ class sharesManagment extends Koobeni
                 'message' => 'nullable|string',
                 'image_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'language' => 'nullable|in:en,kh,ch',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean',
+                'link' => 'nullable|string|url'
             ]);
 
             $share = Share::findOrFail($shareId);

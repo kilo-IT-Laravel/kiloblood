@@ -95,4 +95,10 @@ class User extends Authenticatable
     public function readedat(){
         return $this->hasMany(ReadedAt::class);
     }
+
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
 }

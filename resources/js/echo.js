@@ -13,7 +13,7 @@ window.Echo = new Echo({
     enabledTransports: ['ws', 'wss'],
 });
 
-window.Echo.channel('my-channel').listen('.App\\Events\\notification' , (e) =>{
-    console.log(e.noti);
-})
+// window.Echo.channel('my-channel').listen('.App\\Events\\notification' , (e) =>{
+//     console.log(e.noti);
+// })
 

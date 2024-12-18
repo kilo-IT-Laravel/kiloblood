@@ -45,3 +45,4 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 
 // Route::post('/postey' , [test::class , 'testBruh1']);
 
+Route::get('/testing',[test::class , 'getCollection']);

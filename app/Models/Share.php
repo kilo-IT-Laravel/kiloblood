@@ -15,7 +15,8 @@ class Share extends Model
         'message',
         'image_url',
         'is_active',
-        'language'
+        'language',
+        'link'
     ];
 
     protected $casts = [

@@ -46,7 +46,7 @@ class EventManagement extends Koobeni
             $event = $this->eventService->create($data);
 
             if($event->is_active){
-                $this->notiService->useNoti(null , 'event' , "New event: {$event->title} at {$event->location}");
+                $this->notiService->useNoti(null , 'new event anoucement' , 'event' , "New event: {$event->title} at {$event->location}");
             }
 
             return $this->dataResponse($event);
@@ -73,7 +73,7 @@ class EventManagement extends Koobeni
             $updatedEvent = $this->eventService->update($event, $validated);
 
             if($updatedEvent->is_active){
-                $this->notiService->useNoti(null , 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
+                $this->notiService->useNoti(null ,'new event anoucement', 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
             }
 
             return $this->dataResponse($updatedEvent);
@@ -135,7 +135,7 @@ class EventManagement extends Koobeni
             $updatedEvent = $this->eventService->toggleStatus($event);
 
             if($updatedEvent->is_active){
-                $this->notiService->useNoti(null , 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
+                $this->notiService->useNoti(null ,'new event anoucement', 'event' , "New event: {$updatedEvent->title} at {$updatedEvent->location}");
             }
 
             return $this->dataResponse(

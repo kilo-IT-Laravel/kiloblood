@@ -2,6 +2,8 @@
 
 namespace Storage\utils;
 
+use Illuminate\Support\Facades\Log;
+
 trait kobeniCollection
 {
     public function recursivePluck(array $array, $key)
@@ -60,5 +62,26 @@ trait kobeniCollection
         return $array;
     }
 
+    public function recursiveUpdateImageUrls($data)
+    {
+        if ($data instanceof \Illuminate\Database\Eloquent\Model) {
+            $data = $data->toArray();
+        }
 
+        if (is_array($data)) {
+            foreach ($data as $key => &$value) {
+                if (is_object($value)) {
+                    $value = $this->recursiveUpdateImageUrls($value->toArray());
+                }
+                elseif (is_array($value)) {
+                    $value = $this->recursiveUpdateImageUrls($value);
+                }
+                elseif (is_string($value) && preg_match('/\.(jpg|jpeg|png)$/i', $value)) {
+                    $value = env('IMAGE_URL') . '/' . $value;
+                }
+            }
+        }
+    
+        return $data;
+    }
 }

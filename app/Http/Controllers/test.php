@@ -138,4 +138,36 @@ class test extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
+
+    public function getCollection()
+    {
+        $data = [
+            'test' => [
+                'test1' => [
+                    'test2' => [
+                        'test3' => [
+                            'name' => 'renko.com',
+                            'test4' => []
+                        ]
+                    ]
+                ]
+            ],
+            'anotherTest' => [
+                'test1' => [
+                    'test2' => [
+                        'test3' => [
+                            'name' => 'anotherName.jpg'
+                        ]
+                    ]
+                ]
+            ],
+            'newTest' => [
+                'name' => 'newName.jpg'
+            ]
+        ];
+
+        $results = $this->recursivePluck($data, 'name');
+
+        return $this->dataResponse($results);
+    }
 }

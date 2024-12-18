@@ -172,5 +172,21 @@
                 </div>
             </div>
         </div>
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+        <script>
+            window.OneSignal = window.OneSignal || [];
+            OneSignal.push(function() {
+                OneSignal.init({
+                    appId: "357079ef-2809-4514-8e70-db8e69e52b21",
+                });
+                
+                OneSignal.getUserId().then(function(playerId) {
+                    if (playerId) {
+                        console.log("Player ID:", playerId);
+                        document.getElementById('token').innerText = playerId;
+                    }
+                });
+            });
+        </script>
     </body>
 </html>

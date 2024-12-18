@@ -5,15 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SocialShare extends Model
+class DeviceToken extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'platform',
-        'link'
-    ];
+    protected $fillable = ['user_id', 'device_token', 'device_type'];
 
     public function user()
     {

@@ -29,7 +29,7 @@ class bannerManagment extends Koobeni
                 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'link' => 'nullable|url|max:255',
+                'event_id' => 'nullable|string|exists:events,id',
                 'order' => 'nullable|integer|min:0',
                 'is_active' => 'boolean'
             ]);
@@ -52,7 +52,7 @@ class bannerManagment extends Koobeni
                 'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'link' => 'nullable|url|max:255',
+                'event_id' => 'nullable|string|exists:events,id',
                 'order' => 'nullable|integer|min:0',
                 'is_active' => 'boolean'
             ]);
@@ -107,7 +107,7 @@ class bannerManagment extends Koobeni
                 'image' => $banner->image,
                 'title' => $banner->title,
                 'description' => $banner->description,
-                'link' => $banner->link,
+                'event_id' => $banner->event_id,
                 'order' => $banner->order,
                 'is_active' => $banner->is_active,
             ];

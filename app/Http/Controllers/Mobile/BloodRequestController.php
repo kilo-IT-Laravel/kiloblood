@@ -26,6 +26,14 @@ class BloodRequestController extends Koobeni
                 'doc' => 'required|file|mimes:jpeg,png,jpg|max:2048',
             ]);
 
+            $existingRequest = BloodRequest::where('donor_id', Auth::id())
+                ->where('status', $validated['status'])
+                ->exists();
+
+            if ($existingRequest) {
+                return $this->Validation(null, 'You have already made a request');
+            }
+
             if ($this->req->hasFile('doc')) {
                 $validated['doc'] = $this->req->file('doc')->store('medical_records', 's3');
             }
@@ -78,25 +86,27 @@ class BloodRequestController extends Koobeni
                     'quantity',
                     'note',
                     'status',
+                    'expired_at',
                     'created_at'
                 ]
             ]);
 
             $requests->getCollection()->transform(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'location' => $item->location,
-                    'expired_at' => Carbon::parse($item->expired_at)->format('Y-m-d'),
-                    'time' => $item->created_at->diffForHumans(),
-                    'status' => $item->status,
-                    'blood_type' => $item->blood_type
-                ];
+                return $this->transformRequestData($item, 'index');
             });
 
             return $this->paginationDataResponse($requests);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function showRequest(int $reqId){
+        try{
+            $data = BloodRequest::findOrFail($reqId);
+            return $this->dataResponse($data);
+        }catch(Exception $e){
+            return $this->handleException($e , $this->req);
         }
     }
 
@@ -108,12 +118,12 @@ class BloodRequestController extends Koobeni
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
                 'relations' => [
-                    'bloodRequest:id,blood_type,name,location,expired_at,status'
+                    'bloodRequest:id,blood_type,name,location,expired_at,status',
+                    'donor:id,name,blood_type,phone_number,location'
                 ],
                 'whereHas' => [
                     'bloodRequest' => function ($query) {
                         $query->where('donor_id', Auth::id());
-                        // ->where('status', 'pending');
                     }
                 ],
                 'where' => [
@@ -123,19 +133,14 @@ class BloodRequestController extends Koobeni
                     'id',
                     'blood_request_id',
                     'requester_id',
+                    'is_confirmed',
+                    'quantity',
                     'created_at'
                 ]
             ]);
+
             $data->getCollection()->transform(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->bloodRequest->name,
-                    'location' => $item->bloodRequest->location,
-                    'expired_at' => Carbon::parse($item->bloodRequest->expired_at)->format('Y-m-d'),
-                    'time' => $item->created_at->diffForHumans(),
-                    'status' => $item->bloodRequest->status,
-                    'blood_type' => $item->bloodRequest->blood_type
-                ];
+                return $this->transformRequestData($item, 'donor');
             });
 
             return $this->paginationDataResponse($data);
@@ -194,10 +199,18 @@ class BloodRequestController extends Koobeni
     public function confirmDonor(int $donorId)
     {
         try {
+            $validated = $this->req->validate([
+                'confirm_quantity' => 'required|integer|min:1'
+            ]);
+
             $bloodRequestDonor = BloodRequestDonor::findOrFail($donorId);
 
             if ($bloodRequestDonor->bloodRequest->donor_id !== Auth::id()) {
                 return $this->Forbidden('Unauthorized');
+            }
+
+            if ($validated['confirm_quantity'] > $bloodRequestDonor->quantity) {
+                return $this->Validation(null, 'Cannot confirm more than what donor offered');
             }
 
             $request = $bloodRequestDonor->bloodRequest;
@@ -205,30 +218,30 @@ class BloodRequestController extends Koobeni
                 ->where('is_confirmed', true)
                 ->sum('quantity');
 
-            $newTotal = $confirmedQuantity + $bloodRequestDonor->quantity;
+            $newTotal = $confirmedQuantity + $validated['confirm_quantity'];
 
             // if ($newTotal > $request->quantity) {
-            //     return $this->Validation(null, 'Confirming this donor would exceed requested quantity');
+            //     return $this->Validation(null, 'Confirming this amount would exceed requested quantity');
             // }
 
-            DB::transaction(function () use ($bloodRequestDonor, $request, $newTotal) {
+            DB::transaction(function () use ($bloodRequestDonor, $request, $validated, $newTotal) {
                 $bloodRequestDonor->update([
-                    'is_confirmed' => true
+                    'is_confirmed' => true,
+                    'confirmed_quantity' => $validated['confirm_quantity']
                 ]);
 
-                // if ($newTotal === $request->quantity) {
-                //     $request->update([
-                //         'status' => 'completed'
-                //     ]);
-                // }
-                $request->update([
-                    'status' => 'completed'
-                ]);
+                //idk this gonna be change to completed status after we reach the amount quantity or ?
+                if ($newTotal === $request->quantity) {
+                    $request->update([
+                        'status' => 'completed'
+                    ]);
+                }
 
                 $this->notiService->useNoti(
                     $bloodRequestDonor->requester_id,
+                    'Blood Donation Confirmed',
                     'confirm',
-                    'Your recent donation has been successfully processed',
+                    "Your donation of {$validated['confirm_quantity']} unit(s) has been confirmed",
                     $bloodRequestDonor->id
                 );
             });
@@ -352,8 +365,43 @@ class BloodRequestController extends Koobeni
         }
     }
 
-
-
+    private function transformRequestData($item, $option)
+    {
+        switch ($option) {
+            case 'index':
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'location' => $item->location,
+                    'expired_at' => Carbon::parse($item->expired_at)->format('Y-m-d'),
+                    'time' => $item->created_at->diffForHumans(),
+                    'status' => $item->status,
+                    'quantity' => $item->quantity,
+                    'blood_type' => $item->blood_type
+                ];
+                break;
+            case 'donor':
+                return [
+                    'id' => $item->id,
+                    'name' => $item->bloodRequest->name,
+                    'location' => $item->bloodRequest->location,
+                    'expired_at' => Carbon::parse($item->bloodRequest->expired_at)->format('Y-m-d'),
+                    'time' => $item->created_at->diffForHumans(),
+                    'status' => $item->bloodRequest->status,
+                    'blood_type' => $item->bloodRequest->blood_type,
+                    'donor' => [
+                        'id' => $item->donor->id,
+                        'name' => $item->donor->name,
+                        'blood_type' => $item->donor->blood_type,
+                        'phone_number' => $item->donor->phone_number,
+                        'location' => $item->donor->location,
+                        'quantity_offered' => $item->quantity,
+                        'is_confirmed' => $item->is_confirmed
+                    ]
+                ];
+                break;
+        }
+    }
 
 
 

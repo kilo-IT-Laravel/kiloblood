@@ -52,7 +52,7 @@ class Authentication extends Koobeni
                 'oneTimeLogin' => true
             ]);
 
-            return $this->dataResponse($data);
+            return $this->tokenResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -149,10 +149,42 @@ class Authentication extends Koobeni
             $requestCount = BloodRequest::where('donor_id', Auth::id())
                 ->count();
 
+            $lastRequest = BloodRequest::where('donor_id', Auth::id())
+                ->latest()
+                ->first([
+                    'blood_type',
+                    'quantity',
+                    'created_at',
+                    'status'
+                ]);
+
+            $lastDonation = BloodRequestDonor::with('bloodRequest:id,blood_type,quantity')
+                ->where('requester_id', Auth::id())
+                ->where('status', 'accepted')
+                ->where('is_confirmed', true)
+                ->latest()
+                ->first([
+                    'id',
+                    'blood_request_id',
+                    'quantity',
+                    'created_at'
+                ]);
+
             return $this->dataResponse([
                 'blood_type' => $bloodType,
                 'donations_count' => $donationCount,
-                'requests_count' => $requestCount
+                'requests_count' => $requestCount,
+                'last_request' => $lastRequest ? [
+                    'blood_type' => $lastRequest->blood_type,
+                    'quantity' => $lastRequest->quantity,
+                    'time' => $lastRequest->created_at->diffForHumans(),
+                    'status' => $lastRequest->status
+                ] : null,
+                'last_donation' => $lastDonation ? [
+                    'blood_type' => $lastDonation->bloodRequest->blood_type,
+                    'quantity' => $lastDonation->quantity,
+                    'time' => $lastDonation->created_at->diffForHumans()
+                ] : null
             ]);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -183,9 +215,9 @@ class Authentication extends Koobeni
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
             ]);
 
-            if($this->req->hasFile('avatar')){
+            if ($this->req->hasFile('avatar')) {
                 Storage::disk('s3')->delete($this->req->avatar);
-                $validate['avatar'] = $this->req->file('avatar')->store('avatars' , 's3');
+                $validate['avatar'] = $this->req->file('avatar')->store('avatars', 's3');
             }
 
             $this->req->user()->update($validate);

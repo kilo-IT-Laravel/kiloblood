@@ -13,27 +13,31 @@ class Notification extends Koobeni
     public function index()
     {
         try {
-            $data = $this->findAll->allWithPagination([
-                'model' => ModelsNotification::class,
-                'sort' => 'latest',
-                'select' => [
-                    'id',
-                    'message',
-                    'status',
-                    'created_at'
-                ],
-                'where' => function ($query) {
-                    $query->where('user_id', Auth::id())
-                        ->orWhereNull('user_id');
-                },
-                'whereDoesntHave' => [
-                    'readedat' => function ($query) {
-                        $query->where('user_id', Auth::id());
-                    }
-                ],
-                'perPage' => $this->req->perPage
-            ]);
-            return $this->paginationDataResponse($data);
+            $availablity = $this->req->user()->available_for_donation;
+
+            if ($availablity && $availablity == 1) {
+                $data = $this->findAll->allWithPagination([
+                    'model' => ModelsNotification::class,
+                    'sort' => 'latest',
+                    'select' => [
+                        'id',
+                        'message',
+                        'status',
+                        'created_at'
+                    ],
+                    'where' => function ($query) {
+                        $query->where('user_id', Auth::id())
+                            ->orWhereNull('user_id');
+                    },
+                    'whereDoesntHave' => [
+                        'readedat' => function ($query) {
+                            $query->where('user_id', Auth::id());
+                        }
+                    ],
+                    'perPage' => $this->req->perPage
+                ]);
+                return $this->paginationDataResponse($data);
+            }
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

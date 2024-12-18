@@ -29,6 +29,7 @@ Route::prefix('requests')->group(function(){
     Route::get('/', [BloodRequestController::class, 'index']);
     Route::post('/', [BloodRequestController::class, 'store']);  
     Route::get('/my-request', [BloodRequestController::class, 'myRequests']);
+    Route::get('/request-details/{reqId}' , [BloodRequestController::class , 'showRequest']);
     Route::post('/donate/{reqId}',[BloodRequestController::class , 'donate']); /// this one logic is a bit tricky
     Route::post('/cancel/{reqId}',[BloodRequestController::class , 'cancel']);
     Route::post('/confirm/{donorId}',[BloodRequestController::class , 'confirmDonor']); /// this one too

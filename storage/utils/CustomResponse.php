@@ -4,18 +4,21 @@ namespace Storage\utils;
 
 trait CustomResponse
 {
-    public function dataResponse($data, $message = 'Successfully')
+    public function dataResponse($data = null, $message = 'Successfully')
     {
-        $response = [
+        return response()->json([
             'success' => true,
             'message' => $message,
-        ];
+            'data' => $data ? $this->recursiveUpdateImageUrls($data) : $data,
+        ], 200);
+    }
 
-        if($data !== null) {
-            $response['data'] = $data;
-        }
-
-        return response()->json($response, 200);
+    public function tokenResponse($data = null, $message = 'Successfully'){
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'token' => $data ? $this->recursiveUpdateImageUrls($data) : $data,
+        ], 200);
     }
 
     public function paginationResponse($data)
@@ -33,7 +36,7 @@ trait CustomResponse
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $data->items(),
+            'data' => $this->recursiveUpdateImageUrls($data->items()),
             'pagination' => $this->paginationResponse($data),
         ], 200);
     }
@@ -46,7 +49,7 @@ trait CustomResponse
         ];
 
         if($data !== null) {
-            $response['data'] = $data;
+            $response['data'] = $this->recursiveUpdateImageUrls($data);
         }
 
         return response()->json($response, 201);
