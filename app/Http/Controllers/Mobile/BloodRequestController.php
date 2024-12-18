@@ -149,7 +149,7 @@ class BloodRequestController extends Koobeni
         }
     }
 
-    public function donate(int $reqId) /// can not donate if their avalaible_status = false
+    public function donate(int $reqId)
     {
         try {
             $bloodRequest = BloodRequest::findOrFail($reqId);

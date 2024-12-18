@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\Auth\Authentication;
 use App\Http\Controllers\test;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/user', function (Request $request) {
@@ -44,5 +46,3 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 // Route::post('/testvalidate' , [test::class , 'testbruh']);
 
 // Route::post('/postey' , [test::class , 'testBruh1']);
-
-Route::get('/testing',[test::class , 'getCollection']);
