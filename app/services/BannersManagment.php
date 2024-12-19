@@ -17,9 +17,10 @@ class BannersManagment extends BaseService
             'select' => [
                 'id',
                 'title',
-                'link',
                 'order',
+                'image',
                 'is_active',
+                'event_id',
                 'created_at'
             ],
             'where' => [
@@ -39,7 +40,9 @@ class BannersManagment extends BaseService
     public function create(array $data)
     {
         if ($this->req->hasFile('image')) {
-            $data['image'] = $this->uploadImage($this->req->file('image'));
+            //$data['image'] = $this->uploadImage($this->req->file('image'));
+            $path = $data['image']->store('banners', 's3');
+            $data['image'] = env('AWS_URL'). $path;
         }
 
         if (!isset($data['order'])) {

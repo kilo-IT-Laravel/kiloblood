@@ -32,7 +32,7 @@ class Authentication extends Koobeni
                 'credentials' => $cred
             ]);
 
-            return $this->LoginResponse($user);
+            return $this->dataResponse($user);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -52,7 +52,7 @@ class Authentication extends Koobeni
                 'oneTimeLogin' => true
             ]);
 
-            return $this->LoginResponse($token);
+            return $this->dataResponse($token);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

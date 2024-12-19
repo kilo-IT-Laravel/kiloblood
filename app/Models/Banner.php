@@ -16,11 +16,18 @@ class Banner extends Model
         'link',
         'order',
         'is_active',
-        'image'
+        'image',
+        'event_id',
+
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order' => 'integer'
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 }

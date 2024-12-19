@@ -29,9 +29,9 @@ class bannerManagment extends Koobeni
                 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 'title' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'link' => 'nullable|url|max:255',
                 'order' => 'nullable|integer|min:0',
-                'is_active' => 'boolean'
+                'is_active' => 'boolean',
+                'event_id' => 'nullable|exists:events,id',
             ]);
 
             $banner = $this->bannerService->create($validated);
@@ -66,7 +66,7 @@ class bannerManagment extends Koobeni
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
-    }
+    }   
 
     public function destroy(int $bannerId)
     {

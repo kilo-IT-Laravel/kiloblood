@@ -173,9 +173,9 @@ class BloodRequestController extends Koobeni
                 ->where('created_at', '>', now()->subMonths(3))
                 ->exists();
 
-            if ($recentDonation) {
-                return $this->Validation(null, 'You must wait 3 months between blood donations');
-            }
+//            if ($recentDonation) {
+//                return $this->Validation(null, 'You must wait 3 months between blood donations');
+//            }
 
             if ($bloodRequest->donor_id === Auth::id()) {
                 return $this->Validation(null, 'You cannot donate to your own blood request');
@@ -190,9 +190,9 @@ class BloodRequestController extends Koobeni
                 ->where('blood_request_id', $bloodRequest->id)
                 ->exists();
 
-            if ($existingRequest) {
-                return $this->Validation(null, 'You have already responded to this request');
-            }
+//            if ($existingRequest) {
+//                return $this->Validation(null, 'You have already responded to this request');
+//            }
 
             $donation = DB::transaction(function () use ($validated, $bloodRequest) {
                 return BloodRequestDonor::create([
