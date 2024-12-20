@@ -19,6 +19,7 @@ class BloodRequestController extends Koobeni
 
 {
     use ValidatesRequests;
+
     public function store()
     {
         try {
@@ -33,21 +34,21 @@ class BloodRequestController extends Koobeni
             ]);
 
             $existingRequest = BloodRequest::where('donor_id', Auth::id())
-            ->where('status','pending')
-            ->first();
-            if ($existingRequest){
-                return response ([
-                    'success' =>'success false',
-                    'message' =>'you alrady have make blood request',
-                    'error' =>[
+                ->where('status', 'pending')
+                ->first();
+            if ($existingRequest) {
+                return response([
+                    'success' => 'success false',
+                    'message' => 'you alrady have make blood request',
+                    'error' => [
                         'request' => 'only one pending request allowed'
                     ]
-                    ],422);
+                ], 422);
             }
 
             if ($this->req->hasFile('doc')) {
                 $path = $this->req->file('doc')->store('medical_records', 's3');
-                $validated['doc'] = env('AWS_URL')  . $path;
+                $validated['doc'] = env('AWS_URL') . $path;
             }
 
             $data = BloodRequest::create([
@@ -122,53 +123,51 @@ class BloodRequestController extends Koobeni
     }
 
 
-
-
-    public function myRequests()
-    {
-        try {
-            $data = $this->findAll->allWithPagination([
-                'model' => BloodRequestDonor::class,
-                'sort' => 'latest',
-                'perPage' => $this->req->perPage,
-                'relations' => [
-                    'bloodRequest:id,blood_type,name,location,expired_at,status'
-                ],
-                'whereHas' => [
-                    'bloodRequest' => function ($query) {
-                        $query->where('donor_id', Auth::id());
-                        // ->where('status', 'pending');
-                    }
-                ],
-                'where' => [
-                    ['status', '=', 'accepted'],
-                ],
-                'select' => [
-                    'id',
-                    'blood_request_id',
-                    'requester_id',
-                    'quantity',
-                    'created_at'
-                ]
-            ]);
-            $data->getCollection()->transform(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->bloodRequest->name,
-                    'location' => $item->bloodRequest->location,
-                    'expired_at' => Carbon::parse($item->bloodRequest->expired_at)->format('Y-m-d'),
-                    'time' => $item->created_at->diffForHumans(),
-                    'status' => $item->bloodRequest->status,
-                    'blood_type' => $item->bloodRequest->blood_type,
-                    'quantity' => $item->quantity
-                ];
-            });
-
-            return $this->paginationDataResponse($data);
-        } catch (Exception $e) {
-            return $this->handleException($e, $this->req);
-        }
-    }
+//    public function myRequests()
+//    {
+//        try {
+//            $data = $this->findAll->allWithPagination([
+//                'model' => BloodRequestDonor::class,
+//                'sort' => 'latest',
+//                'perPage' => $this->req->perPage,
+//                'relations' => [
+//                    'bloodRequest:id,blood_type,name,location,expired_at,status'
+//                ],
+//                'whereHas' => [
+//                    'bloodRequest' => function ($query) {
+//                        $query->where('donor_id', Auth::id());
+//                        // ->where('status', 'pending');
+//                    }
+//                ],
+//                'where' => [
+//                    ['status', '=', 'accepted'],
+//                ],
+//                'select' => [
+//                    'id',
+//                    'blood_request_id',
+//                    'requester_id',
+//                    'quantity',
+//                    'created_at'
+//                ]
+//            ]);
+//            $data->getCollection()->transform(function ($item) {
+//                return [
+//                    'id' => $item->id,
+//                    'name' => $item->bloodRequest->name,
+//                    'location' => $item->bloodRequest->location,
+//                    'expired_at' => Carbon::parse($item->bloodRequest->expired_at)->format('Y-m-d'),
+//                    'time' => $item->created_at->diffForHumans(),
+//                    'status' => $item->bloodRequest->status,
+//                    'blood_type' => $item->bloodRequest->blood_type,
+//                    'quantity' => $item->quantity
+//                ];
+//            });
+//
+//            return $this->paginationDataResponse($data);
+//        } catch (Exception $e) {
+//            return $this->handleException($e, $this->req);
+//        }
+//    }
 
     public function donate(int $reqId)
     {
@@ -218,7 +217,6 @@ class BloodRequestController extends Koobeni
     }
 
 
-
     public function confirmDonor(Request $request, int $donorId)
     {
         $this->validate($request, [
@@ -230,6 +228,10 @@ class BloodRequestController extends Koobeni
 
             if ($bloodRequestDonor->bloodRequest->donor_id !== Auth::id()) {
                 return $this->Forbidden('Unauthorized');
+            }
+
+            if ($bloodRequestDonor->confirmed_quantity > 0) {
+                return $this->Validation(null, 'You have already confirmed this donation');
             }
 
             $bloodRequest = $bloodRequestDonor->bloodRequest;
@@ -264,7 +266,6 @@ class BloodRequestController extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
-
 
 
     public function cancel(int $reqId)
@@ -380,6 +381,107 @@ class BloodRequestController extends Koobeni
         }
     }
 
+    public function detailRequests($reqId)
+    {
+        try {
+            $data = $this->findAll->allWithPagination([
+                'model' => BloodRequestDonor::class,
+                'sort' => 'latest',
+                'perPage' => $this->req->perPage,
+                'relations' => [
+                    'donor:id,name,phone_number,location,blood_type,avatar,available_for_donation,trusted_at'
+                ],
+                'whereHas' => [
+                    'bloodRequest' => function ($query) use ($reqId) {
+                        $query->where('id', $reqId);
+                    }
+                ],
+                'select' => [
+                    'id',
+                    'blood_request_id',
+                    'requester_id',
+                    'quantity',
+                    'status',
+                    'created_at'
+                ],
+                'where' => [
+                    ['status', '=', 'accepted'],
+                ],
+            ]);
+
+            Log::info($data);
+            return $this->paginationDataResponse($data);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+        public function show($reqId)
+        {
+            try {
+                $data = BloodRequest::findOrFail($reqId);
+                return $this->dataResponse($data);
+            } catch (Exception $e) {
+                return $this->handleException($e, $this->req);
+            }
+        }
+
+
+
+        public function myRequests()
+    {
+        try {
+            $data = $this->findAll->allWithPagination([
+                'model' => BloodRequest::class,
+                'sort' => 'latest',
+                'perPage' => $this->req->perPage,
+                'relations' => [
+                    'donors:id,blood_request_id,status'
+                ],
+                'where' => [
+                    ['donor_id', '=', Auth::id()],
+                ],
+                'whereHas' => [
+                    'donors' => function ($query)  {
+                        $query->where('status' , 'accepted');
+                    }
+                ],
+                'select' => [
+                    'id',
+                    'donor_id',
+                    'blood_type',
+                    'name',
+                    'location',
+                    'quantity',
+                    'note',
+                    'status',
+                    'created_at'
+                ]
+            ]);
+
+            Log::info($data);
+
+            $data->getCollection()->transform(function ($item) {
+                return $this->transformRequestData($item);
+            });
+
+            return $this->paginationDataResponse($data);
+        } catch (Exception $e) {
+            return $this->handleException($e, $this->req);
+        }
+    }
+
+        private function transformRequestData($item){
+
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'location' => $item->location,
+            'time' => $item->created_at->diffForHumans(),
+            'status' => $item->status,
+            'blood_type' => $item->blood_type
+        ];
+    }
 
 
 
@@ -423,7 +525,10 @@ class BloodRequestController extends Koobeni
 
 
 
-    ////// dont know about donation request it either a request we sent people accepted or not or it is report about own action
+
+
+
+        ////// dont know about donation request it either a request we sent people accepted or not or it is report about own action
 
     private function donationRequest(string $option)
     {

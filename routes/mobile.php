@@ -27,7 +27,7 @@ Route::prefix('shares')->group(function () {
 
 Route::prefix('requests')->group(function(){
     Route::get('/', [BloodRequestController::class, 'index']);
-    Route::post('/', [BloodRequestController::class, 'store']);  
+    Route::post('/', [BloodRequestController::class, 'store']);
     Route::get('/my-request', [BloodRequestController::class, 'myRequests']);
     Route::post('/donate/{reqId}',[BloodRequestController::class , 'donate'])->middleware('available'); /// this one logic is a bit tricky
     Route::post('/cancel/{reqId}',[BloodRequestController::class , 'cancel']);
@@ -35,7 +35,12 @@ Route::prefix('requests')->group(function(){
     Route::get('/report/my-donation' , [BloodRequestController::class , 'myDonationHistory']);
     Route::get('/report/my-request' , [BloodRequestController::class , 'myRequestHistory']);
     Route::get('/search-donor' , [BloodRequestController::class , 'searchForDonor']);
-}); 
+});
+
+
+//Route::post('/donate/{reqId}',[BloodRequestController::class , 'donate']); /// this one logic is a bit tricky
+Route::get('/show/{reqId}', [BloodRequestController::class, 'show']);
+Route::get('/view-detail/{reqId}', [BloodRequestController::class, 'detailRequests']);
 
 Route::prefix('notifications')->group(function(){
     Route::get('/', [Notification::class , 'index']);
