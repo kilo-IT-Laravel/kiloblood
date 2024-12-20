@@ -11,15 +11,18 @@ class BloodRequestDonor extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'blood_request_id', 
-        'requester_id', 
-        'status', 
-        'quantity', 
-        'is_confirmed'
+        'blood_request_id',
+        'requester_id',
+        'status',
+        'quantity',
+        'is_confirmed',
+        'confirmed_quantity'
     ];
 
     protected $casts = [
-        'quantity' => 'integer'
+        'quantity' => 'integer',
+        'confirmed_quantity' => 'integer'
+
     ];
 
     public function bloodRequest()
@@ -31,4 +34,7 @@ class BloodRequestDonor extends Model
     {
         return $this->belongsTo(User::class, 'requester_id');
     }
+
+
+
 }

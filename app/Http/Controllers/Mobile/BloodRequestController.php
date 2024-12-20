@@ -8,13 +8,17 @@ use App\Models\BloodRequestDonor;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class BloodRequestController extends Koobeni
+
 {
+    use ValidatesRequests;
     public function store()
     {
         try {
@@ -117,6 +121,9 @@ class BloodRequestController extends Koobeni
         }
     }
 
+
+
+
     public function myRequests()
     {
         try {
@@ -210,8 +217,14 @@ class BloodRequestController extends Koobeni
         }
     }
 
-    public function confirmDonor(int $donorId)
+
+
+    public function confirmDonor(Request $request, int $donorId)
     {
+        $this->validate($request, [
+            'confirmed_quantity' => 'required|integer|min:1'
+        ]);
+
         try {
             $bloodRequestDonor = BloodRequestDonor::findOrFail($donorId);
 
@@ -219,22 +232,30 @@ class BloodRequestController extends Koobeni
                 return $this->Forbidden('Unauthorized');
             }
 
-            $request = $bloodRequestDonor->bloodRequest;
-            $confirmedQuantity = $request->donors()
+            $bloodRequest = $bloodRequestDonor->bloodRequest;
+            $confirmedQuantity = $bloodRequest->donors()
                 ->where('is_confirmed', true)
-                ->sum('quantity');
+                ->sum('confirmed_quantity'); // Sum confirmed quantities
 
-            $newTotal = $confirmedQuantity + $bloodRequestDonor->quantity;
+            $requestedQuantity = $bloodRequest->quantity;
+            $newConfirmedQuantity = $confirmedQuantity + $request->confirmed_quantity;
 
-            if ($newTotal > $request->quantity) {
-                return $this->Validation(null, 'Confirming this donor would exceed requested quantity');
+            if ($request->confirmed_quantity > $bloodRequestDonor->quantity) {
+                return $this->Validation(null, 'Cannot confirm more than donated quantity');
             }
 
-            DB::transaction(function () use ($bloodRequestDonor, $request, $newTotal) {
-                $bloodRequestDonor->update(['is_confirmed' => true]);
+            if ($newConfirmedQuantity > $requestedQuantity) {
+                return $this->Validation(null, 'Confirming this quantity would exceed requested quantity');
+            }
 
-                if ($newTotal === $request->quantity) {
-                    $request->update(['status' => 'completed']);
+            DB::transaction(function () use ($bloodRequestDonor, $bloodRequest, $request, $newConfirmedQuantity) {
+                $bloodRequestDonor->update([
+                    'is_confirmed' => true,
+                    'confirmed_quantity' => $request->confirmed_quantity // Update confirmed quantity
+                ]);
+
+                if ($newConfirmedQuantity === $bloodRequest->quantity) {
+                    $bloodRequest->update(['status' => 'completed']);
                 }
             });
 
@@ -243,6 +264,7 @@ class BloodRequestController extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
+
 
 
     public function cancel(int $reqId)
