@@ -8,6 +8,7 @@ use App\Models\BloodRequestDonor;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -90,17 +91,42 @@ class Authentication extends Koobeni
     public function getDeviceHistory()
     {
         try {
-            $devices = $this->req->user()
-                ->tokens()
-                ->select(['id', 'name', 'last_used_at', 'created_at'])
-                ->orderBy('last_used_at', 'desc')
+            $userId = $this->req->user()->id;
+
+           
+            $devices = DB::table('devices')
+                ->where('user_id', $userId)
+                ->select(['id', 'user_agent', 'ip', 'created_at', 'updated_at'])
+                ->orderBy('updated_at', 'desc')
                 ->get();
 
-            return $this->dataResponse($devices);
+            $deviceNames = $devices->groupBy('user_agent');
+
+            foreach ($deviceNames as $name => $group) {
+                if ($group->count() > 1) {
+
+                    $latestDevice = $group->first();
+
+                    DB::table('devices')
+                        ->where('user_id', $userId)
+                        ->where('user_agent', $name)
+                        ->where('id', '!=', $latestDevice->id)
+                        ->delete();
+                }
+            }
+
+            $updatedDevices = DB::table('devices')
+                ->where('user_id', $userId)
+                ->select(['id', 'user_agent', 'ip', 'created_at', 'updated_at'])
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            return $this->dataResponse($updatedDevices);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
     }
+
 
     public function logoutDevice($tokenId)
     {
