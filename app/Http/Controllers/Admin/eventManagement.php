@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Koobeni;
 use App\Models\Event;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class EventManagement extends Koobeni
@@ -46,8 +47,10 @@ class EventManagement extends Koobeni
             $event = $this->eventService->create($data);
 
             if($event->is_active){
-                $this->notiService->useNoti(null , 'event' , "New event: {$event->title} at {$event->location}");
+                $this->notiService->useNoti(null , 'new event anoucement' , 'event' , "New event: {$event->title} at {$event->location}" ,);
             }
+
+            Log::info($event);
 
             return $this->dataResponse($event);
         } catch (Exception $e) {
