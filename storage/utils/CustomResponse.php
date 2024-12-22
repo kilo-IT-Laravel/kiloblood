@@ -15,20 +15,6 @@ trait CustomResponse
         return response()->json($response, 200);
     }
 
-    public function LoginResponse($data, $message = 'Successfully')
-    {
-        $response = [
-            'success' => true,
-            'message' => $message,
-        ];
-
-        if($data !== null) {
-            $response['token'] = $data;
-        }
-
-        return response()->json($response, 200);
-    }
-
     public function paginationResponse($data)
     {
         return [

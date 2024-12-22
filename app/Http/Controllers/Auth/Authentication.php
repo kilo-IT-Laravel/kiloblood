@@ -53,7 +53,7 @@ class Authentication extends Koobeni
                 'oneTimeLogin' => true
             ]);
 
-            return $this->LoginResponse($token);
+            return $this->dataResponse([ 'token' => $token]);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
@@ -93,7 +93,7 @@ class Authentication extends Koobeni
         try {
             $userId = $this->req->user()->id;
 
-           
+
             $devices = DB::table('devices')
                 ->where('user_id', $userId)
                 ->select(['id', 'user_agent', 'ip', 'created_at', 'updated_at'])
