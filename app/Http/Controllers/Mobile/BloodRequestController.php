@@ -12,6 +12,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
@@ -436,10 +437,11 @@ class BloodRequestController extends Koobeni
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
                 'relations' => [
-                    'donors:id,blood_request_id,status'
+                    'donors'
                 ],
                 'where' => [
                     ['donor_id', '=', Auth::id()],
+                    ['expired_at' , '>' , now()]
                 ],
                 'whereHas' => [
                     'donors' => function ($query)  {
@@ -471,17 +473,10 @@ class BloodRequestController extends Koobeni
         }
     }
 
-        private function transformRequestData($item){
 
-        return [
-            'id' => $item->id,
-            'name' => $item->name,
-            'location' => $item->location,
-            'time' => $item->created_at->diffForHumans(),
-            'status' => $item->status,
-            'blood_type' => $item->blood_type
-        ];
-    }
+
+
+
 
 
 
@@ -613,5 +608,16 @@ class BloodRequestController extends Koobeni
                 return 'invalid option';
                 break;
         }
+    }
+    private function transformRequestData($item){
+
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'location' => $item->location,
+            'time' => $item->created_at->diffForHumans(),
+            'status' => $item->status,
+            'blood_type' => $item->blood_type
+        ];
     }
 }
