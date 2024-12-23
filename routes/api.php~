@@ -70,5 +70,25 @@ Route::post('/testing' , function(Request $req){
     }catch(Exception $e){
         return response()->json($e);
     }
-});
+})
+    public function processImageUrls($data)
+{
+    // Handle string case (image path)
+    if (is_string($data) && $this->isImagePath($data)) {
+        return env('AWS_URL') . '/' . $data;
+    }
 
+    // Handle array or object recursively
+    if (is_iterable($data)) { // Covers both arrays and objects
+        foreach ($data as $key => $value) {
+            // Update the value by processing recursively
+            if (is_array($data)) {
+                $data[$key] = $this->processImageUrls($value);
+            } elseif (is_object($data)) {
+                $data->$key = $this->processImageUrls($value);
+            }
+        }
+    }
+
+    return $data;
+}

@@ -1,7 +1,7 @@
 <?php
 
 namespace Storage\utils;
-
+use Illuminate\Support\Facades\Storage;
 trait kobeniCollection
 {
     public function recursivePluck(array $array, $key)
@@ -20,6 +20,19 @@ trait kobeniCollection
 
         return $result;
     }
+
+
+
+    public  function recursive($req){
+        $data = [];
+        if($req->name === "renko"){
+            $data = true;
+        }
+        $data = $this->recursive($req);
+        return $data;
+    }
+
+
 
     public function filterByKeyValue(array $array, $key, $value)
     {

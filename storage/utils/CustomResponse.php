@@ -9,7 +9,7 @@ trait CustomResponse
         $response = [
             'success' => true,
             'message' => $message,
-            'data' => $data,
+            'data' => $this->processImageUrls($data),
         ];
 
         return response()->json($response, 200);
@@ -23,7 +23,9 @@ trait CustomResponse
         ];
 
         if($data !== null) {
-            $response['token'] = $data;
+            $response['data'] = [
+                'token' => $data
+            ];
         }
 
         return response()->json($response, 200);
@@ -44,10 +46,11 @@ trait CustomResponse
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $data->items(),
+            'data' => $this->processImageUrls($data->items()),
             'pagination' => $this->paginationResponse($data),
         ], 200);
     }
+
 
     public function createdResponse($data, $message = 'Successfully')
     {
@@ -62,4 +65,46 @@ trait CustomResponse
 
         return response()->json($response, 201);
     }
+
+//    private function processImageUrls($data)
+//    {
+//
+//        if (is_object($data)) {
+//
+//            if (isset($data->image) && is_string($data->image)) {
+//                $data->image = env('AWS_URL') . '/' . $data->image;
+//            }
+//        }
+//        return $data;
+//    }
+
+    private function processImageUrls($data)
+    {
+        if ($data instanceof \Illuminate\Database\Eloquent\Model) {
+            $data = $data->toArray();
+        }
+
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_array($value) || is_object($value)) {
+                    $data[$key] = $this->processImageUrls($value);
+                } elseif (
+                    is_string($value) &&
+                    preg_match('/\.(jpg|png|jpeg)$/i', $value) &&
+                    !str_starts_with($value, env('AWS_URL'))
+                ) {
+                    $data[$key] = env('AWS_URL') . '/' . $value;
+                }
+            }
+        } elseif (is_object($data)) {
+            foreach ($data as $key => $value) {
+                $data->$key = $this->processImageUrls($value);
+            }
+        }
+
+        return $data;
+    }
+
+
+
 }

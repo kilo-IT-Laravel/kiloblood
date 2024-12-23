@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BloodRequestController extends Koobeni
 
@@ -46,10 +47,26 @@ class BloodRequestController extends Koobeni
                 ], 422);
             }
 
+
             if ($this->req->hasFile('doc')) {
-                $path = $this->req->file('doc')->store('medical_records', 's3');
-                $validated['doc'] = env('AWS_URL') . $path;
+                $file = $this->req->file('doc');
+                try {
+                    $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                    $path = Storage::disk('s3')->putFileAs('medical_records', $file, $filename, 'public');
+                    $url = Storage::disk('s3')->url($path);
+                    $validated['doc'] = $url;
+                    \Log::info('File uploaded successfully', ['url' => $url]);
+                } catch (\Exception $e) {
+                    \Log::error('Error uploading file', ['error' => $e->getMessage()]);
+                    return response([
+                        'success' => false,
+                        'message' => 'Error uploading file',
+                        'error' => $e->getMessage()
+                    ], 500);
+                }
             }
+
+
 
             $data = BloodRequest::create([
                 'donor_id' => Auth::id(),
@@ -99,7 +116,8 @@ class BloodRequestController extends Koobeni
                     'quantity',
                     'note',
                     'status',
-                    'created_at'
+                    'created_at',
+                    'expired_at'
                 ]
             ]);
 
@@ -409,7 +427,7 @@ class BloodRequestController extends Koobeni
                 ],
             ]);
 
-            Log::info($data);
+
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
@@ -459,7 +477,7 @@ class BloodRequestController extends Koobeni
                 ]
             ]);
 
-            Log::info($data);
+            
 
             $data->getCollection()->transform(function ($item) {
                 return $this->transformRequestData($item);

@@ -43,7 +43,7 @@ class EventManagement extends Koobeni
                 'is_active' => 'boolean'
             ]);
 
-
+            
             $event = $this->eventService->create($data);
 
             if($event->is_active){

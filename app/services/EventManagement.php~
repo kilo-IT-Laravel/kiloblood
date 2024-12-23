@@ -6,11 +6,10 @@ use App\Models\Event;
 use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Storage\utils\CustomResponse;
 
 class EventManagement extends BaseService
 {
-    use CustomResponse;
+
     public function getAllEvents($withTrashed = false)
     {
         $where = [];
