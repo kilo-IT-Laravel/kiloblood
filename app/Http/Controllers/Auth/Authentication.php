@@ -33,7 +33,7 @@ class Authentication extends Koobeni
                 'credentials' => $cred
             ]);
 
-            return $this->LoginResponse($user);
+            return $this->dataResponse($user);
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }

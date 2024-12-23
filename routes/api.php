@@ -49,22 +49,15 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 
 Route::post('/testing' , function(Request $req){
     try{
-        $content = $req->content;
-        $subscriptionIds = $req->subscription_ids;
-        $url = $req->url;
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Basic os_v2_app_gvyht3zibfcrjdtq3ohgtzjleg7ie2n7jmpuhf5kgs52tp3dinsnpkva7ry2l4tpkjdlvlgzdpccqmuiidyttbdi5334o4m7hwljuia',
-            'accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ])->post('https://oneSignal.com/api/v1/notifications',[
-            'app_id' => '357079ef-2809-4514-8e70-db8e69e52b21',
-            'include_player_ids' => $subscriptionIds,
-            'contents' => ['en' => $content],
-            'url' => $url
+        \Berkayk\OneSignal\OneSignalFacade::sendNotificationCustom([
+            'included_segments' => ['All'],
+            'headings' => ['en' => 'hellow world'],
+            'contents' => ['en' => 'dwadadaddadadaadad']
         ]);
 
-        return response()->json($response);
+        return response()->json([
+            'success' => true
+        ]);
     }catch(Exception $e){
         return response()->json($e);
     }

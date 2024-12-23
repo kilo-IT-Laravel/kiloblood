@@ -40,7 +40,7 @@ class BannersManagment extends BaseService
     public function create(array $data)
     {
         if ($this->req->hasFile('image')) {
-            //$data['image'] = $this->uploadImage($this->req->file('image'));
+            $data['image'] = $this->uploadImage($this->req->file('image'));
             $path = $data['image']->store('banners', 's3');
             $data['image'] = env('AWS_URL'). $path;
         }
