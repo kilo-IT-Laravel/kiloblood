@@ -43,6 +43,7 @@ class EventManagement extends Koobeni
                 'order' => 'nullable|integer|min:0',
                 'is_active' => 'boolean'
             ]);
+            Log::info($data);
 
             $event = $this->eventService->create($data);
 
@@ -50,7 +51,7 @@ class EventManagement extends Koobeni
                 $this->notiService->useNoti(null , 'new event anoucement' , 'event' , "New event: {$event->title} at {$event->location}" ,);
             }
 
-            Log::info($event);
+            Log::info($event->is_active);
 
             return $this->dataResponse($event);
         } catch (Exception $e) {

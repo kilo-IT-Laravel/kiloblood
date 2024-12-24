@@ -100,8 +100,9 @@ class BloodRequestController extends Koobeni
                     'quantity',
                     'note',
                     'status',
+                    'expired_at',
                     'created_at'
-                ]
+                ],
             ]);
 
             $requests->getCollection()->transform(function ($item) {
@@ -261,6 +262,7 @@ class BloodRequestController extends Koobeni
                     $bloodRequest->update(['status' => 'completed']);
                 }
             });
+
 
             return $this->dataResponse($bloodRequestDonor->fresh());
         } catch (Exception $e) {
@@ -458,7 +460,7 @@ class BloodRequestController extends Koobeni
                     'note',
                     'status',
                     'created_at'
-                ]
+                ],
             ]);
 
             Log::info($data);
