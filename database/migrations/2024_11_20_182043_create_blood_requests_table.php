@@ -30,8 +30,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->index(['donor_id', 'status' , 'created_at']);
             $table->foreign('donor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unique('donor_id');
-
         });
     }
 

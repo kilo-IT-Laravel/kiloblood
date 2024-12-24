@@ -59,10 +59,12 @@ class BloodRequestController extends Koobeni
                 'location' => $validated['location'],
                 'quantity' => $validated['quantity'],
                 'note' => $validated['note'] ?? null,
-                'expired_at' => $validated['expired_at'] ?? now()->addDays(7),
+                'expired_at' => $validated['expired_at'] ?? now()->format('Y-m-d H:i:s'),
                 'medical_records' => $validated['doc'],
                 'status' => 'pending'
             ]);
+
+            Log::info($data);
 
             return $this->dataResponse($data);
         } catch (Exception $e) {
@@ -206,7 +208,7 @@ class BloodRequestController extends Koobeni
                 return BloodRequestDonor::create([
                     'blood_request_id' => $bloodRequest->id,
                     'requester_id' => Auth::id(),
-                    'quantity' => $validated['status'] === 'accepted' ? $validated['quantity'] : null,
+                    'quantity' => $validated['status'] === 'accepted' ? $validated['quantity']: 0,
                     'status' => $validated['status'],
                     'is_confirmed' => false
                 ]);
@@ -366,17 +368,6 @@ class BloodRequestController extends Koobeni
                 ]
             ]);
 
-            $data->getCollection()->transform(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'location' => $item->location,
-                    'expired_at' => Carbon::parse($item->expired_at)->format('Y-m-d'),
-                    'time' => $item->created_at->diffForHumans(),
-                    'status' => $item->status,
-                    'blood_type' => $item->blood_type
-                ];
-            });
 
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
@@ -438,12 +429,13 @@ class BloodRequestController extends Koobeni
                 'model' => BloodRequest::class,
                 'sort' => 'latest',
                 'perPage' => $this->req->perPage,
-                'relations' => [
-                    'donors'
-                ],
+//                'relations' => [
+//                    'donors:id,blood_request_id,requester_id,status,confirmed_quantity'
+//                ],
                 'where' => [
                     ['donor_id', '=', Auth::id()],
-                    ['expired_at' , '>' , now()]
+                    ['expired_at' , '>' , now()],
+
                 ],
                 'whereHas' => [
                     'donors' => function ($query)  {
@@ -461,13 +453,13 @@ class BloodRequestController extends Koobeni
                     'status',
                     'created_at'
                 ],
+                'where' => [
+                    [ 'status' ,'=','pending']
+                ]
             ]);
 
             Log::info($data);
 
-            $data->getCollection()->transform(function ($item) {
-                return $this->transformRequestData($item);
-            });
 
             return $this->paginationDataResponse($data);
         } catch (Exception $e) {
@@ -611,15 +603,5 @@ class BloodRequestController extends Koobeni
                 break;
         }
     }
-    private function transformRequestData($item){
 
-        return [
-            'id' => $item->id,
-            'name' => $item->name,
-            'location' => $item->location,
-            'time' => $item->created_at->diffForHumans(),
-            'status' => $item->status,
-            'blood_type' => $item->blood_type
-        ];
-    }
 }
