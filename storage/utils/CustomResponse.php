@@ -108,19 +108,16 @@ trait CustomResponse
 
         if (is_array($data)) {
             foreach ($data as $key => $value) {
-                if (is_array($value) || is_object($value)) {
+                if (is_array($value)) {
                     $data[$key] = $this->processImageUrls($value);
+                }elseif(is_object($value)){
+                    $data[$key] = $this->processImageUrls($value->toArray());
                 } elseif (
                     is_string($value) &&
-                    preg_match('/\.(jpg|png|jpeg)$/i', $value) &&
-                    !str_starts_with($value, env('AWS_URL'))
+                    preg_match('/\.(jpg|png|jpeg)$/i', $value)
                 ) {
                     $data[$key] = env('AWS_URL') . '/' . $value;
                 }
-            }
-        } elseif (is_object($data)) {
-            foreach ($data as $key => $value) {
-                $data->$key = $this->processImageUrls($value);
             }
         }
 
