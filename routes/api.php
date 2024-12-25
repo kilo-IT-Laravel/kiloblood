@@ -27,7 +27,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/devices', [Authentication::class, 'getDeviceHistory']);
     Route::post('/devices/logout-all', [Authentication::class, 'logoutAllDevices']);
     Route::post('/devices/{$tokenId}/logout', [Authentication::class, 'logoutDevice']);
+    Route::post('/device-token', [Authentication::class, 'device']);
+
 });
+
 
 Route::prefix('/mobile')->middleware('auth:sanctum')->group(function () {
     include('mobile.php');

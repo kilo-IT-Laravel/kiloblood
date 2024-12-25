@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Koobeni;
 use App\Models\BloodRequest;
 use App\Models\BloodRequestDonor;
+use App\Models\DeviceToken;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Authentication extends Koobeni
@@ -251,6 +253,26 @@ class Authentication extends Koobeni
             return $this->dataResponse(null, 'Account deleted');
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
+        }
+    }
+
+    public function device()
+    {
+        try{
+            $this->req->validate([
+                'device_token' => 'required|string',
+                'device_name' => 'required|string'
+            ]);
+
+            $result = DeviceToken::create([
+                'user_id' => $this->req->user()->id,
+               'device_token' => $this->req->device_token,
+               'device_name' => $this->req->device_name
+            ]);
+
+            return $this->dataResponse($result);
+        }catch(Exception $e){
+            return $this->handleException($e , $this->req);
         }
     }
 }

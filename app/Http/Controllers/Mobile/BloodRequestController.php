@@ -177,7 +177,6 @@ class BloodRequestController extends Koobeni
     {
         try {
             $bloodRequest = BloodRequest::findOrFail($reqId);
-
             $recentDonation = BloodRequestDonor::where('requester_id', Auth::id())
                 ->where('is_confirmed', true)
                 ->where('created_at', '>', now()->subMonths(3))
@@ -189,6 +188,9 @@ class BloodRequestController extends Koobeni
 
             if ($bloodRequest->donor_id === Auth::id()) {
                 return $this->Validation(null, 'You cannot donate to your own blood request');
+            }
+            if ($bloodRequest->status !== 'pending'){
+                return $this->validation(null, 'You cannot donate to this request');
             }
 
             $validated = $this->req->validate([
@@ -264,7 +266,6 @@ class BloodRequestController extends Koobeni
                     $bloodRequest->update(['status' => 'completed']);
                 }
             });
-
 
             return $this->dataResponse($bloodRequestDonor->fresh());
         } catch (Exception $e) {

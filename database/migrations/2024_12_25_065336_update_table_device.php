@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('device_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->ondelete('cascade');
-            $table->string('device_token')->unique();
-            $table->string('device_type')->nullable();
-            $table->timestamps();
+        Schema::table('device_tokens', function (Blueprint $table) {
+            $table->renameColumn('device_type','device_name');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('device_tokens');
+        Schema::table('device_tokens', function (Blueprint $table) {
+            $table->renameColumn('device_name','device_type');
+        });
     }
 };
