@@ -1,100 +1,37 @@
 
-# Kobeni Laravel11 helper (˶ᵔ ᵕ ᵔ˶)
+# Project Kilo-Blood
 
-#### 1. Is this a library ? no it is not a library but a small mini framework or you can just call it a helper.
+It is a project about an app transaction blood with others
 
-#### 2. So what does it help ? not much but can help you query some stuff more easy.
+## Admin Features
 
+- authentication
+- banner management
+- event management
+- profile settings
+- security
+- request management
+- donors management
+- social shares management
+- dashboard analytics
+- audit logs
 
+## Mobile Features
 
-## Installation
+- authentication
+- making request
+- blood request transactions
+- notifications
+- banner slider
+- event notify
+- profile settings
+- security
+- shares
 
-Nah just clone this composer install php kobeni migrate and kobeni ser
-    
-## Features
+## For more features can visit here
 
-- prebuild helper 6 array manipulation methods
-- prebuild authentication logics 
-- prebuild helper one device login 
-- prebuild helper log all users log into devices
-- prebuild helper terminate all devices and also specific
-- prebuild helper custom database query ready to be use
-- prebuild helper strong password validation actually this will coming for mores so stay tunes
+link: https://www.canva.com/design/DAGNgtKC5MA/-kL-cEayTzWp2JUhmuJtpA/edit?utm_content=DAGNgtKC5MA&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
-## Usage/Examples
+## One signal App_id
 
-```bash
-php kobeni make:kobeniController ExampleController
-
-php kobeni make:after MethodName
-
-php kobeni make:before MethodName
-
-php kobeni make:staticRp ClassName
-
-php kobeni make:dynamicRp className
-```
-
-```php
-
-public function example()
-{
-    try {
-        $data = $this->findAll->allDataWithSelect([
-            'data' => User::class,
-            'sort' => ['created_at', 'desc'],
-            'select' => ['id', 'name', 'email', 'created_at'],
-            'relations' => [
-                'posts' => function ($query) {
-                    $query->select('id', 'title', 'created_at');
-                }
-            ],
-            'search' => [
-                'name' => $this->req->name,
-            ],
-        ]);
-
-        return $this->dataResponse($data);
-    } catch (Exception $e) {
-        return $this->handleException($e, $this->req);
-    }
-}
-
-$user = $this->TokenRegister([
-  'credentials' => $credentials,
-  'model' => User::class
-]);
-
-public function getCollection(){
-    $data = [
-    'test' => [
-        'test1' => [
-          'test2' => [
-            'test3' => [
-              'name' => 'renko',
-              'test4' => []
-            ]
-          ]
-        ]
-    ],
-    'anotherTest' => [
-      'test1' => [
-        'test2' => [
-          'test3' => [
-            'name' => 'anotherName'
-          ]
-        ]
-      ]
-    ],
-    'newTest' => [
-      'name' => 'newName'
-    ]
-  ];
-
-  $results = $this->recursivePluck($data, 'name');
-        
-  return $this->dataResponse($results);
-}
-
-```
-
+357079ef-2809-4514-8e70-db8e69e52b21
