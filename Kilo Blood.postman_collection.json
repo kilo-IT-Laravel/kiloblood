@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "75bbe568-7c7e-4bee-98d5-629e1afcca07",
+		"_postman_id": "14616536-a5f1-424a-8aa2-c0f31a8084c6",
 		"name": "Kilo Blood",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "28229667"
+		"_exporter_id": "36512568"
 	},
 	"item": [
 		{
@@ -704,12 +704,12 @@
 									"formdata": [
 										{
 											"key": "title",
-											"value": "Tesing",
+											"value": "Heeedsfdasj",
 											"type": "text"
 										},
 										{
 											"key": "description",
-											"value": "sample",
+											"value": "sample12",
 											"type": "text"
 										},
 										{
@@ -720,16 +720,16 @@
 										{
 											"key": "image_url",
 											"type": "file",
-											"src": "/C:/Users/USER/Desktop/0083ba1d2d20222e325725600b539d51.jpg"
+											"src": "/C:/Users/layvi/Downloads/download.jpg"
 										},
 										{
 											"key": "start_date",
-											"value": "2024-12-15",
+											"value": "2024-12-21",
 											"type": "text"
 										},
 										{
 											"key": "end_date",
-											"value": "2024-12-16",
+											"value": "2024-12-30",
 											"type": "text"
 										},
 										{
@@ -745,15 +745,14 @@
 									]
 								},
 								"url": {
-									"raw": "{{url}}/api/admin/events/storing",
+									"raw": "{{url}}/api/admin/events",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"api",
 										"admin",
-										"events",
-										"storing"
+										"events"
 									]
 								}
 							},
@@ -2732,7 +2731,7 @@
 									"formdata": [
 										{
 											"key": "name",
-											"value": "denji",
+											"value": "Ly",
 											"type": "text"
 										},
 										{
@@ -2747,23 +2746,23 @@
 										},
 										{
 											"key": "quantity",
-											"value": "3",
+											"value": "4",
 											"type": "text"
 										},
 										{
 											"key": "note",
-											"value": "dawdawadada",
+											"value": "Hi",
 											"type": "text"
 										},
 										{
 											"key": "expired_at",
-											"value": "2024-12-8",
+											"value": "2024-12-27",
 											"type": "text"
 										},
 										{
 											"key": "doc",
 											"type": "file",
-											"src": "/C:/Users/USER/Desktop/photo_2024-11-29_22-34-30.jpg"
+											"src": "/C:/Users/layvi/Downloads/2.jpg"
 										}
 									]
 								},
@@ -2782,7 +2781,7 @@
 							"response": []
 						},
 						{
-							"name": "get all the request",
+							"name": "list pending request",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -2803,14 +2802,15 @@
 									}
 								],
 								"url": {
-									"raw": "{{url}}/api/mobile/requests",
+									"raw": "{{url}}/api/mobile/requests/my-request",
 									"host": [
 										"{{url}}"
 									],
 									"path": [
 										"api",
 										"mobile",
-										"requests"
+										"requests",
+										"my-request"
 									]
 								}
 							},
@@ -2875,7 +2875,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"status\":\"accepted\",\r\n    \"quantity\":1\r\n}",
+									"raw": "{\r\n    \"status\":\"accepted\",\r\n    \"quantity\" : 1\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2883,7 +2883,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{url}}/api/mobile/requests/donate/5",
+									"raw": "{{url}}/api/mobile/requests/donate/20",
 									"host": [
 										"{{url}}"
 									],
@@ -2892,7 +2892,7 @@
 										"mobile",
 										"requests",
 										"donate",
-										"5"
+										"20"
 									]
 								}
 							},
@@ -3081,6 +3081,79 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "view detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "42|KvYw29LAOqK5NehRO4E5CYz7rLpKprDWd1BdnUeo7abcd938",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{token}}/api/mobile/request/view-detail",
+									"host": [
+										"{{token}}"
+									],
+									"path": [
+										"api",
+										"mobile",
+										"request",
+										"view-detail"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "show",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/api/mobile/requests/show/11",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"mobile",
+										"requests",
+										"show",
+										"11"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3190,7 +3263,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{url}}/api/mobile/notifications/5",
+									"raw": "{{url}}/api/mobile/notifications/1",
 									"host": [
 										"{{url}}"
 									],
@@ -3198,7 +3271,7 @@
 										"api",
 										"mobile",
 										"notifications",
-										"5"
+										"1"
 									]
 								}
 							},
@@ -3595,6 +3668,21 @@
 				},
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login success\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.environment.set(\"token\", jsonData.token);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -3610,7 +3698,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"phone_number\":\"012441440\",\r\n  \"password\":\"abc123\"\r\n}",
+							"raw": "//user 1\r\n// {\r\n//     \"phone_number\": \"0134567\",\r\n//     \"password\": \"abc123\"\r\n// }\r\n\r\n//user 2\r\n{\r\n    \"phone_number\": \"01345678\",\r\n    \"password\": \"abc123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3891,6 +3979,43 @@
 								"api",
 								"devices",
 								"logout-all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeviceToken",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"device_name\": \"Windows (131)\",\r\n    \"device_token\": \"71943c53-2a2a-4f6d-b84c-d0f5e5111688\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/device-token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"device-token"
 							]
 						}
 					},
