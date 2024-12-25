@@ -27,10 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/devices', [Authentication::class, 'getDeviceHistory']);
     Route::post('/devices/logout-all', [Authentication::class, 'logoutAllDevices']);
     Route::post('/devices/{$tokenId}/logout', [Authentication::class, 'logoutDevice']);
-    Route::post('/device-token', [Authentication::class, 'device']);
-
 });
-
 
 Route::prefix('/mobile')->middleware('auth:sanctum')->group(function () {
     include('mobile.php');
@@ -52,17 +49,6 @@ Route::get('/test/{id}', [test::class, 'bruh']);
 
 Route::post('/testing' , function(Request $req){
     try{
-<<<<<<< HEAD
-        \Berkayk\OneSignal\OneSignalFacade::sendNotificationCustom([
-            'included_segments' => ['All'],
-            'headings' => ['en' => 'hellow world'],
-            'contents' => ['en' => 'dwa']
-        ]);
-
-        return response()->json([
-            'success' => true
-        ]);
-=======
 
         $data = [
           'test' => [
@@ -81,12 +67,28 @@ Route::post('/testing' , function(Request $req){
         ];
 
         return response()->json($data);
->>>>>>> origin/putheka
     }catch(Exception $e){
         return response()->json($e);
     }
-});
-<<<<<<< HEAD
-=======
+})
+    public function processImageUrls($data)
+{
+    // Handle string case (image path)
+    if (is_string($data) && $this->isImagePath($data)) {
+        return env('AWS_URL') . '/' . $data;
+    }
 
->>>>>>> origin/putheka
+    // Handle array or object recursively
+    if (is_iterable($data)) { // Covers both arrays and objects
+        foreach ($data as $key => $value) {
+            // Update the value by processing recursively
+            if (is_array($data)) {
+                $data[$key] = $this->processImageUrls($value);
+            } elseif (is_object($data)) {
+                $data->$key = $this->processImageUrls($value);
+            }
+        }
+    }
+
+    return $data;
+}

@@ -146,41 +146,41 @@ class EventManagement extends BaseService
             ->get();
     }
 
-    public function getEventNotiDetails($data)
-    {
-        $eventDetails = Event::where('is_active', true)
-            ->select(
-                'id',
-                'title',
-                'description',
-                'location',
-                'start_date',
-                'end_date',
-                'is_active'
-            )
-            ->latest()
-            ->first();
-
-        return [
-            'notification' => [
-                'id' => $data->id,
-                'message' => $data->message,
-                'time' => $data->created_at->diffForHumans(),
-                'status' => $data->status
-            ],
-            'event_details' => [
-                'title' => $eventDetails->title,
-                'description' => $eventDetails->description,
-                'location' => $eventDetails->location,
-                'date' => [
-                    'start' => Carbon::parse($eventDetails->start_date)->format('Y-m-d H:i'),
-                    'end' => Carbon::parse($eventDetails->end_date)->format('Y-m-d H:i'),
-                    'is_active' => $eventDetails->is_active,
-                    'is_expired' => Carbon::parse($eventDetails->end_date)->isPast()
-                ]
-            ]
-        ];
-    }
+//    public function getEventNotiDetails($data)
+//    {
+//        $eventDetails = Event::where('is_active', true)
+//            ->select(
+//                'id',
+//                'title',
+//                'description',
+//                'location',
+//                'start_date',
+//                'end_date',
+//                'is_active'
+//            )
+//            ->latest()
+//            ->first();
+//
+//        return [
+//            'notification' => [
+//                'id' => $data->id,
+//                'message' => $data->message,
+//                'time' => $data->created_at->diffForHumans(),
+//                'status' => $data->status
+//            ],
+//            'event_details' => [
+//                'title' => $eventDetails->title,
+//                'description' => $eventDetails->description,
+//                'location' => $eventDetails->location,
+//                'date' => [
+//                    'start' => Carbon::parse($eventDetails->start_date)->format('Y-m-d H:i'),
+//                    'end' => Carbon::parse($eventDetails->end_date)->format('Y-m-d H:i'),
+//                    'is_active' => $eventDetails->is_active,
+//                    'is_expired' => Carbon::parse($eventDetails->end_date)->isPast()
+//                ]
+//            ]
+//        ];
+//    }
 
     private function uploadImage($image)
     {

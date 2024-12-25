@@ -66,7 +66,7 @@ class bannerManagment extends Koobeni
         } catch (Exception $e) {
             return $this->handleException($e, $this->req);
         }
-    }   
+    }
 
     public function destroy(int $bannerId)
     {

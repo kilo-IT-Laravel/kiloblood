@@ -45,6 +45,7 @@ class EventManagement extends Koobeni
             ]);
             Log::info($data);
 
+
             $event = $this->eventService->create($data);
 
             if($event->is_active){

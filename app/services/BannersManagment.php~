@@ -37,6 +37,9 @@ class BannersManagment extends BaseService
             ]
         ]);
 
+
+
+
         return $banners;
 
     }
@@ -46,11 +49,6 @@ class BannersManagment extends BaseService
     {
         if ($this->req->hasFile('image')) {
             $data['image'] = $this->uploadImage($this->req->file('image'));
-<<<<<<< HEAD
-            $path = $data['image']->store('banners', 's3');
-            $data['image'] = env('AWS_URL'). $path;
-=======
->>>>>>> origin/putheka
         }
 
         if (!isset($data['order'])) {
