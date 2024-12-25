@@ -265,6 +265,15 @@ class BloodRequestController extends Koobeni
                 if ($newConfirmedQuantity === $bloodRequest->quantity) {
                     $bloodRequest->update(['status' => 'completed']);
                 }
+
+                $this->notiService->useNoti(
+                    $bloodRequestDonor->requester_id,
+                    'Blood Donation Confirmed',
+                    'confirm',
+                    "Your donation of {$validated['confirm_quantity']} unit(s) has been confirmed",
+                    $bloodRequestDonor->id
+                );
+
             });
 
             return $this->dataResponse($bloodRequestDonor->fresh());

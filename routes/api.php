@@ -55,7 +55,7 @@ Route::post('/testing' , function(Request $req){
         \Berkayk\OneSignal\OneSignalFacade::sendNotificationCustom([
             'included_segments' => ['All'],
             'headings' => ['en' => 'hellow world'],
-            'contents' => ['en' => 'dwadadaddadadaadad']
+            'contents' => ['en' => 'dwa']
         ]);
 
         return response()->json([

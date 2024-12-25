@@ -179,6 +179,7 @@
                 await OneSignal.init({
                     appId: "00a3d580-4dbb-4fbb-baa3-b841544d4e6c",
                 });
+                console.log(OneSignal.User.PushSubscription.id)
             });
         </script>
     </body>
