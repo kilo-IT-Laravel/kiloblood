@@ -90,8 +90,8 @@ trait CustomResponse
                     $data[$key] = $this->processImageUrls($value);
                 } elseif (
                     is_string($value) &&
-                    preg_match('/\.(jpg|png|jpeg)$/i', $value) && // Check if it's an image
-                    !str_starts_with($value, env('AWS_URL'))    // Ensure the URL is not already complete
+                    preg_match('/\.(jpg|png|jpeg)$/i', $value) &&
+                    !str_starts_with($value, env('AWS_URL'))
                 ) {
                     $data[$key] = env('AWS_URL') . '/' . $value;
                 }

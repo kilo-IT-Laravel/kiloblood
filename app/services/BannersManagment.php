@@ -37,10 +37,6 @@ class BannersManagment extends BaseService
             ]
         ]);
 
-        $banners->getCollection()->transform(function ($banner) {
-            return $this->processImageUrls($banner);
-        });
-
         return $banners;
 
     }

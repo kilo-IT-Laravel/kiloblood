@@ -4,15 +4,34 @@ namespace Storage\utils;
 
 trait CustomResponse
 {
+//    public function dataResponse($data = null, $message = 'Successfully')
+//    {
+//        $response = [
+//            'success' => true,
+//            'message' => $message,
+//            'data' => $this->processImageUrls($data),
+//        ];
+//
+//        return response()->json($response, 200);
+//    }
+
     public function dataResponse($data = null, $message = 'Successfully')
     {
-        $response = [
-            'success' => true,
-            'message' => $message,
-            'data' => $this->processImageUrls($data),
-        ];
+        try {
+            $response = [
+                'success' => true,
+                'message' => $message,
+                'data' => $this->processImageUrls($data), // Process image URLs
+            ];
 
-        return response()->json($response, 200);
+            return response()->json($response, 200);
+        } catch (\Exception $e) {
+            \Log::error('Image processing error: ' . $e->getMessage()); // Log the error
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to process image URLs.',
+            ], 500);
+        }
     }
 
     public function LoginResponse($data, $message = 'Successfully')

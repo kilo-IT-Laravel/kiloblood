@@ -23,6 +23,8 @@ class EventManagement extends BaseService
             $where[] = ['end_date', '>=', $this->req->upcoming];
         }
 
+        $where[] = ['end_date', '>=', now()->toDateString()];
+
         return $this->findAll->allWithPagination([
             'model' => Event::class,
             'trash' => $withTrashed,
@@ -51,12 +53,6 @@ class EventManagement extends BaseService
                 'endDate' => $this->req->endDate
             ]
         ]);
-
-        $event->getCollection()->transform(function ($event) {
-            return $this->processImageUrls($event);
-        });
-
-        return $event;
 
 
     }

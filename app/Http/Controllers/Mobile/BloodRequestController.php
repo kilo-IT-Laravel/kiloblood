@@ -47,13 +47,12 @@ class BloodRequestController extends Koobeni
                 ], 422);
             }
 
-
             if ($this->req->hasFile('doc')) {
                 $file = $this->req->file('doc');
                 try {
                     $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-                    $path = Storage::disk('s3')->putFileAs('medical_records', $file, $filename, 'public');
-                    $url = Storage::disk('s3')->url($path);
+                    $path = $file->storeAs('medical_records', $filename, 's3'); // Save to S3
+                    $url = Storage::disk('s3')->url($path); // Generate the full URL
                     $validated['doc'] = $url;
                     \Log::info('File uploaded successfully', ['url' => $url]);
                 } catch (\Exception $e) {
@@ -65,7 +64,6 @@ class BloodRequestController extends Koobeni
                     ], 500);
                 }
             }
-
 
 
             $data = BloodRequest::create([
@@ -204,6 +202,9 @@ class BloodRequestController extends Koobeni
             if ($bloodRequest->donor_id === Auth::id()) {
                 return $this->Validation(null, 'You cannot donate to your own blood request');
             }
+            if ($bloodRequest->status !== 'pending') {
+                return $this->Validation(null, 'You can only confirm donations for pending requests');
+            }
 
             $validated = $this->req->validate([
                 'status' => 'required|in:accepted,rejected',
@@ -222,7 +223,7 @@ class BloodRequestController extends Koobeni
                 return BloodRequestDonor::create([
                     'blood_request_id' => $bloodRequest->id,
                     'requester_id' => Auth::id(),
-                    'quantity' => $validated['status'] === 'accepted' ? $validated['quantity'] : null,
+                    'quantity' => $validated['status'] === 'accepted' ? $validated['quantity'] : 0,
                     'status' => $validated['status'],
                     'is_confirmed' => false
                 ]);
@@ -242,7 +243,12 @@ class BloodRequestController extends Koobeni
         ]);
 
         try {
-            $bloodRequestDonor = BloodRequestDonor::findOrFail($donorId);
+
+            $bloodRequestDonor = BloodRequestDonor::with('bloodRequest')
+                ->where('bloodRequest', function($query) {
+                    $query->where('status', 'pending');
+                })
+                ->findOrFail($donorId);
 
             if ($bloodRequestDonor->bloodRequest->donor_id !== Auth::id()) {
                 return $this->Forbidden('Unauthorized');
@@ -252,12 +258,14 @@ class BloodRequestController extends Koobeni
                 return $this->Validation(null, 'You have already confirmed this donation');
             }
 
-            $bloodRequest = $bloodRequestDonor->bloodRequest;
-            $confirmedQuantity = $bloodRequest->donors()
-                ->where('is_confirmed', true)
-                ->sum('confirmed_quantity'); // Sum confirmed quantities
 
-            $requestedQuantity = $bloodRequest->quantity;
+
+
+            $confirmedQuantity = $bloodRequestDonor->bloodRequest->donors()
+                ->where('is_confirmed', true)
+                ->sum('confirmed_quantity');
+
+            $requestedQuantity = $bloodRequestDonor->bloodRequest->quantity;
             $newConfirmedQuantity = $confirmedQuantity + $request->confirmed_quantity;
 
             if ($request->confirmed_quantity > $bloodRequestDonor->quantity) {
@@ -268,14 +276,14 @@ class BloodRequestController extends Koobeni
                 return $this->Validation(null, 'Confirming this quantity would exceed requested quantity');
             }
 
-            DB::transaction(function () use ($bloodRequestDonor, $bloodRequest, $request, $newConfirmedQuantity) {
+            DB::transaction(function () use ($bloodRequestDonor, $request, $newConfirmedQuantity) {
                 $bloodRequestDonor->update([
                     'is_confirmed' => true,
-                    'confirmed_quantity' => $request->confirmed_quantity // Update confirmed quantity
+                    'confirmed_quantity' => $request->confirmed_quantity
                 ]);
 
-                if ($newConfirmedQuantity === $bloodRequest->quantity) {
-                    $bloodRequest->update(['status' => 'completed']);
+                if ($newConfirmedQuantity === $bloodRequestDonor->bloodRequest->quantity) {
+                    $bloodRequestDonor->bloodRequest->update(['status' => 'completed']);
                 }
             });
 
@@ -284,6 +292,8 @@ class BloodRequestController extends Koobeni
             return $this->handleException($e, $this->req);
         }
     }
+
+
 
 
     public function cancel(int $reqId)
@@ -477,7 +487,7 @@ class BloodRequestController extends Koobeni
                 ]
             ]);
 
-            
+
 
             $data->getCollection()->transform(function ($item) {
                 return $this->transformRequestData($item);
@@ -499,6 +509,8 @@ class BloodRequestController extends Koobeni
             'status' => $item->status,
             'blood_type' => $item->blood_type
         ];
+
+
     }
 
 
@@ -546,7 +558,10 @@ class BloodRequestController extends Koobeni
 
 
 
-        ////// dont know about donation request it either a request we sent people accepted or not or it is report about own action
+
+
+
+    ////// dont know about donation request it either a request we sent people accepted or not or it is report about own action
 
     private function donationRequest(string $option)
     {

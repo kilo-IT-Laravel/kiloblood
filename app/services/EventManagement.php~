@@ -6,10 +6,11 @@ use App\Models\Event;
 use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Storage\utils\CustomResponse;
 
 class EventManagement extends BaseService
 {
-
+    use CustomResponse;
     public function getAllEvents($withTrashed = false)
     {
         $where = [];
@@ -21,6 +22,8 @@ class EventManagement extends BaseService
         if ($this->req->upcoming) {
             $where[] = ['end_date', '>=', $this->req->upcoming];
         }
+
+        $where[] = ['end_date', '>=', now()->toDateString()];
 
         return $this->findAll->allWithPagination([
             'model' => Event::class,
@@ -50,12 +53,6 @@ class EventManagement extends BaseService
                 'endDate' => $this->req->endDate
             ]
         ]);
-
-        $event->getCollection()->transform(function ($event) {
-            return $this->processImageUrls($event);
-        });
-
-        return $event;
 
 
     }
@@ -149,41 +146,41 @@ class EventManagement extends BaseService
             ->get();
     }
 
-    public function getEventNotiDetails($data)
-    {
-        $eventDetails = Event::where('is_active', true)
-            ->select(
-                'id',
-                'title',
-                'description',
-                'location',
-                'start_date',
-                'end_date',
-                'is_active'
-            )
-            ->latest()
-            ->first();
-
-        return [
-            'notification' => [
-                'id' => $data->id,
-                'message' => $data->message,
-                'time' => $data->created_at->diffForHumans(),
-                'status' => $data->status
-            ],
-            'event_details' => [
-                'title' => $eventDetails->title,
-                'description' => $eventDetails->description,
-                'location' => $eventDetails->location,
-                'date' => [
-                    'start' => Carbon::parse($eventDetails->start_date)->format('Y-m-d H:i'),
-                    'end' => Carbon::parse($eventDetails->end_date)->format('Y-m-d H:i'),
-                    'is_active' => $eventDetails->is_active,
-                    'is_expired' => Carbon::parse($eventDetails->end_date)->isPast()
-                ]
-            ]
-        ];
-    }
+//    public function getEventNotiDetails($data)
+//    {
+//        $eventDetails = Event::where('is_active', true)
+//            ->select(
+//                'id',
+//                'title',
+//                'description',
+//                'location',
+//                'start_date',
+//                'end_date',
+//                'is_active'
+//            )
+//            ->latest()
+//            ->first();
+//
+//        return [
+//            'notification' => [
+//                'id' => $data->id,
+//                'message' => $data->message,
+//                'time' => $data->created_at->diffForHumans(),
+//                'status' => $data->status
+//            ],
+//            'event_details' => [
+//                'title' => $eventDetails->title,
+//                'description' => $eventDetails->description,
+//                'location' => $eventDetails->location,
+//                'date' => [
+//                    'start' => Carbon::parse($eventDetails->start_date)->format('Y-m-d H:i'),
+//                    'end' => Carbon::parse($eventDetails->end_date)->format('Y-m-d H:i'),
+//                    'is_active' => $eventDetails->is_active,
+//                    'is_expired' => Carbon::parse($eventDetails->end_date)->isPast()
+//                ]
+//            ]
+//        ];
+//    }
 
     private function uploadImage($image)
     {

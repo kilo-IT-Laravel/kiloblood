@@ -47,7 +47,8 @@ class EventManagement extends Koobeni
             $event = $this->eventService->create($data);
 
             if($event->is_active){
-                $this->notiService->useNoti(null , 'event' , "New event: {$event->title} at {$event->location}");
+                $this->notiService->useNoti(null , 'event' ,
+                    "New event: {$event->title} at {$event->location}");
             }
 
             return $this->dataResponse($event);
